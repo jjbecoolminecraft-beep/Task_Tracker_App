@@ -30,13 +30,19 @@ def call(method, path, token=None, body=None, if_match=None):
         req.add_header("authorization", f"Bearer {token}")
     if if_match:
         req.add_header("if-match", if_match)
+
+    def _body(raw: str, msg) -> object:
+        if not raw:
+            return None
+        if "json" in (msg.get_content_type() or ""):
+            return json.loads(raw)
+        return raw
+
     try:
         with urllib.request.urlopen(req) as resp:
-            raw = resp.read().decode()
-            return resp.status, (json.loads(raw) if raw else None), dict(resp.headers)
+            return resp.status, _body(resp.read().decode(), resp.headers), dict(resp.headers)
     except urllib.error.HTTPError as e:
-        raw = e.read().decode()
-        return e.code, (json.loads(raw) if raw else None), dict(e.headers)
+        return e.code, _body(e.read().decode(), e.headers), dict(e.headers)
 
 
 def check(label, got, expected):
