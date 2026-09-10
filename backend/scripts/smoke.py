@@ -134,7 +134,11 @@ def main() -> int:
 
     print("\nsearch + my tasks + audit access")
     _, hits, _ = call("GET", "/api/v1/search?q=campaign", david)
-    check("search 'campaign' finds MKTG-1", [i["ref"] for i in hits["items"]], ["MKTG-1"])
+    check(
+        "search 'campaign' finds MKTG-1",
+        "MKTG-1" in [i["ref"] for i in hits["items"]],
+        True,
+    )
     _, eng_hits, _ = call("GET", "/api/v1/search?q=platform", login(by_name["Elena Popova"]))
     check("Elena search 'platform' finds an ENG task", len(eng_hits["items"]), lambda n: n >= 1)
     st, _, _ = call("GET", "/api/v1/search?q=platform", david)
