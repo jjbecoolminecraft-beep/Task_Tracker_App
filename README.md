@@ -27,7 +27,8 @@ A runnable MVP vertical slice:
 | Audit (F‑11) | Every mutation writes an `audit_events` row in the same transaction; table is append‑only (DB trigger); `GET /api/v1/audit` + an **Audit log** page are Auditor‑only (spec §8.4.4) with a before→after diff view |
 | Notifications (F‑10) | In‑app feed for task assignment and comment `@mention` / activity; created in the same transaction, scoped strictly to the recipient, never for the actor's own action. Email digest is a worker job (stubbed) |
 | Import / export (F‑12) | CSV + JSON export of a project's tasks (audited, §8.4.6); CSV import via the normal task‑create path (per‑row validation report, parent‑ref → subtask). Large async imports are a worker job (not built) |
-| Web | Login (identity picker), Projects, Project **List** + **Board** (drag + keyboard), Task detail drawer (inline edit, comments, subtasks), My tasks, Search, notification bell, CSV/JSON export + import dialog, Auditor‑only Audit log — English/German i18n (key parity checked in CI) |
+| Dashboards (F‑22) | Per‑project aggregates: KPI tiles, tasks by workflow state / priority, weekly throughput. **No per‑person figures** — excluded at the API, not just the UI (spec §8.4.1); a `MIN_GROUP` guard is in the service for any future breakdown (§8.4.2) |
+| Web | Login (identity picker), Projects, Project **List** + **Board** (drag + keyboard) + **Dashboard**, Task detail drawer (inline edit, comments, subtasks), My tasks, Search, notification bell, CSV/JSON export + import dialog, Auditor‑only Audit log — English/German i18n (key parity checked in CI) |
 | Infra | `infra/` Bicep: VNet + private endpoints, PostgreSQL Flexible Server (Entra auth, zone‑redundant HA), Redis, Blob, Key Vault, Container Apps, Static Web App, Front Door + WAF, EU‑only Azure Policy |
 | Compliance | DPIA outline, RoPA entry, retention concept, works‑agreement outline in `docs/compliance/` |
 

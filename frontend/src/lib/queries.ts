@@ -7,6 +7,7 @@ import type {
   Notification,
   Paginated,
   Project,
+  ProjectDashboard,
   ProjectMember,
   Task,
   UserOut,
@@ -42,6 +43,13 @@ export const useWorkflowStates = (projectId: string) =>
   useQuery({
     queryKey: keys.states(projectId),
     queryFn: () => get<WorkflowState[]>(`/projects/${projectId}/workflow-states`),
+    enabled: !!projectId,
+  });
+
+export const useDashboard = (projectId: string) =>
+  useQuery({
+    queryKey: ["projects", projectId, "dashboard"],
+    queryFn: () => get<ProjectDashboard>(`/projects/${projectId}/dashboard`),
     enabled: !!projectId,
   });
 

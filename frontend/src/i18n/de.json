@@ -57,6 +57,27 @@
     }
   },
   "board": { "title": "Board", "addCard": "Aufgabe hinzufügen", "moveLeft": "In vorherigen Status", "moveRight": "In nächsten Status" },
+  "dashboard": {
+    "title": "Dashboard",
+    "kpi": {
+      "total": "Gesamt",
+      "open": "Offen",
+      "done": "Erledigt",
+      "overdue": "Überfällig",
+      "unassigned": "Nicht zugewiesen"
+    },
+    "doneCount": "{{count}} erledigt",
+    "openCount": "{{count}} offen",
+    "avgAge": "Ø Alter offener Aufgaben {{days}} T",
+    "contributors": "{{count}} Beteiligte:r",
+    "contributors_other": "{{count}} Beteiligte",
+    "byState": "Aufgaben nach Status",
+    "byPriority": "Aufgaben nach Priorität",
+    "throughput": "Erledigt pro Woche",
+    "throughputHint": "In einen „erledigt\"-Status verschobene Aufgaben, letzte 8 Wochen",
+    "category": { "backlog": "Backlog", "in_progress": "In Arbeit", "done": "Erledigt" },
+    "privacyNote": "Auswertung nur auf Projektebene aggregiert – keine personenbezogenen Kennzahlen (Betriebsvereinbarung / DSGVO §8.4)."
+  },
   "list": {
     "title": "Liste",
     "columns": {

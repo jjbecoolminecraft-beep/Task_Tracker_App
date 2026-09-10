@@ -57,6 +57,27 @@
     }
   },
   "board": { "title": "Board", "addCard": "Add task", "moveLeft": "Move to previous state", "moveRight": "Move to next state" },
+  "dashboard": {
+    "title": "Dashboard",
+    "kpi": {
+      "total": "Total",
+      "open": "Open",
+      "done": "Done",
+      "overdue": "Overdue",
+      "unassigned": "Unassigned"
+    },
+    "doneCount": "{{count}} done",
+    "openCount": "{{count}} open",
+    "avgAge": "Avg. open task age {{days}} d",
+    "contributors": "{{count}} contributor",
+    "contributors_other": "{{count}} contributors",
+    "byState": "Tasks by workflow state",
+    "byPriority": "Tasks by priority",
+    "throughput": "Completed per week",
+    "throughputHint": "Tasks moved to a done state, last 8 weeks",
+    "category": { "backlog": "Backlog", "in_progress": "In progress", "done": "Done" },
+    "privacyNote": "Reporting is aggregated to project level only — no per-person figures (works agreement / GDPR §8.4)."
+  },
   "list": {
     "title": "List",
     "columns": {

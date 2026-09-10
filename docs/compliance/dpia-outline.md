@@ -43,7 +43,7 @@ filtering (unreliable).
 
 | Risk | Mitigation |
 |---|---|
-| Behavioural profiling / performance monitoring | Excluded at data-model and API level — no per-person throughput, no leaderboards, no productivity score (spec §8.4.1). Reporting aggregated; any breakdown < 5 individuals suppressed. |
+| Behavioural profiling / performance monitoring | Excluded at data-model and API level — no per-person throughput, no leaderboards, no productivity score (spec §8.4.1). The project dashboard (`/dashboard`) exposes only project-level aggregates; `MIN_GROUP = 5` guards any future breakdown. |
 | Covert monitoring | None: no keystroke/active-time/screenshot/login-duration capture (spec §8.4.3). |
 | Line-manager surveillance via audit logs | Audit access restricted to the Auditor role for defined purposes; managers have none (spec §8.4.4). |
 | Excessive retention | Nightly retention jobs; archived projects purged after 24 months; soft-deleted tasks hard-deleted after 30 days; audit events 12 months. |

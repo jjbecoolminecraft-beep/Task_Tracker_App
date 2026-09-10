@@ -238,6 +238,11 @@ async def seed() -> None:
                 cat = spec.get("cat", WorkflowCategory.BACKLOG.value)
                 st = by_cat.get(cat, states[proj.key][0])
                 seq = start_seq + i
+                completed = None
+                if cat == WorkflowCategory.DONE.value:
+                    # spread completions over the last weeks so the throughput
+                    # chart has something to show
+                    completed = datetime.now(UTC) - timedelta(days=spec.get("done_days_ago", 3))
                 t = Task(
                     id=_uid(f"task:{proj.key}:{seq}"),
                     project_id=proj.id,
@@ -250,7 +255,7 @@ async def seed() -> None:
                     reporter_id=users[spec.get("reporter", "clara.schmidt")].id,
                     due_date=spec.get("due"),
                     estimate_hours=spec.get("estimate"),
-                    completed_at=datetime.now(UTC) if cat == WorkflowCategory.DONE.value else None,
+                    completed_at=completed,
                 )
                 s.add(t)
                 out.append(t)
@@ -301,8 +306,44 @@ async def seed() -> None:
                     "cat": "done",
                     "priority": 2,
                     "assignee": "david.fischer",
+                    "done_days_ago": 4,
                 },
                 {"title": "Email newsletter template redesign", "cat": "backlog", "priority": 5},
+                {
+                    "title": "Webinar recap blog post",
+                    "cat": "done",
+                    "priority": 3,
+                    "assignee": "elena.popova",
+                    "done_days_ago": 11,
+                },
+                {
+                    "title": "Q3 campaign retrospective",
+                    "cat": "done",
+                    "priority": 3,
+                    "assignee": "david.fischer",
+                    "done_days_ago": 19,
+                },
+                {
+                    "title": "Update media kit",
+                    "cat": "done",
+                    "priority": 4,
+                    "assignee": "frank.mueller",
+                    "done_days_ago": 25,
+                },
+                {
+                    "title": "Partner co-marketing brief",
+                    "cat": "done",
+                    "priority": 3,
+                    "assignee": "elena.popova",
+                    "done_days_ago": 12,
+                },
+                {
+                    "title": "Newsletter A/B test wrap-up",
+                    "cat": "done",
+                    "priority": 4,
+                    "assignee": "david.fischer",
+                    "done_days_ago": 6,
+                },
             ],
         )
         # subtasks under the launch campaign brief
@@ -458,7 +499,7 @@ async def seed() -> None:
                 )
 
         # --- fix per-project task counters ---
-        mktg.task_seq = 7
+        mktg.task_seq = len(mktg_tasks)
         eng.task_seq = 5
         ops.task_seq = 3
 

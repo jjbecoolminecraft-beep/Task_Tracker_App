@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { clsx } from "clsx";
-import { ChevronLeft, LayoutGrid, List as ListIcon, Plus } from "lucide-react";
+import { BarChart3, ChevronLeft, LayoutGrid, List as ListIcon, Plus } from "lucide-react";
 import { useProject, useUsers, useWorkflowStates, type TaskFilters } from "@/lib/queries";
 import { Button } from "@/components/ui/Button";
 import { Badge, ErrorNote, Select, Spinner } from "@/components/ui/primitives";
@@ -11,8 +11,9 @@ import { TaskBoardView } from "@/features/tasks/TaskBoardView";
 import { TaskDetailDrawer } from "@/features/tasks/TaskDetailDrawer";
 import { CreateTaskDialog } from "@/features/tasks/CreateTaskDialog";
 import { ImportExportMenu } from "@/features/tasks/ImportExportMenu";
+import { DashboardView } from "@/features/dashboard/DashboardView";
 
-type Tab = "list" | "board";
+type Tab = "list" | "board" | "dashboard";
 
 export function ProjectPage() {
   const { t } = useTranslation();
@@ -100,6 +101,7 @@ export function ProjectPage() {
             [
               ["list", ListIcon, t("list.title")],
               ["board", LayoutGrid, t("board.title")],
+              ["dashboard", BarChart3, t("dashboard.title")],
             ] as const
           ).map(([id, Icon, label]) => (
             <button
@@ -116,17 +118,20 @@ export function ProjectPage() {
           ))}
         </div>
 
-        <FilterBar
-          filters={filters}
-          onChange={setFilters}
-          states={states.data ?? []}
-          users={(users.data ?? []).map((u) => ({ id: u.id, name: u.display_name }))}
-        />
+        {tab !== "dashboard" && (
+          <FilterBar
+            filters={filters}
+            onChange={setFilters}
+            states={states.data ?? []}
+            users={(users.data ?? []).map((u) => ({ id: u.id, name: u.display_name }))}
+          />
+        )}
       </div>
 
-      {tab === "list" ? (
+      {tab === "list" && (
         <TaskListView projectId={projectId} filters={filters} onOpen={openTask} />
-      ) : (
+      )}
+      {tab === "board" && (
         <TaskBoardView
           projectId={projectId}
           filters={filters}
@@ -135,6 +140,7 @@ export function ProjectPage() {
           onOpen={openTask}
         />
       )}
+      {tab === "dashboard" && <DashboardView projectId={projectId} />}
 
       <TaskDetailDrawer
         taskId={selectedTaskId}

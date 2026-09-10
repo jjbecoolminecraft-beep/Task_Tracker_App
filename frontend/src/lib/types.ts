@@ -138,6 +138,25 @@ export interface Notification {
   created_at: string;
 }
 
+export interface ProjectDashboard {
+  total: number;
+  open: number;
+  done: number;
+  overdue: number;
+  unassigned: number;
+  contributor_count: number;
+  avg_open_age_days: number | null;
+  by_state: {
+    state_id: string;
+    name: string;
+    category: WorkflowCategory;
+    position: number;
+    count: number;
+  }[];
+  by_priority: { priority: number; count: number }[];
+  throughput: { week: string; label: string; completed: number }[];
+}
+
 export interface AuditEvent {
   id: number;
   occurred_at: string;

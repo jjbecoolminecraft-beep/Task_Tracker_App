@@ -23,6 +23,10 @@ enforced in the data model and API, and covered by tests.
 
 3. **Aggregated reporting only.** Dashboards report at project and team level.
    Any breakdown resolving to fewer than five individuals is suppressed.
+   *Evidence:* `GET /api/v1/projects/{id}/dashboard` returns only project-level
+   aggregates (state / priority distribution, weekly throughput, counts). It has
+   no by-assignee grouping; `DashboardService.MIN_GROUP = 5` guards any future
+   one. A test asserts the payload carries no per-person breakdown.
 
 4. **No covert monitoring.** No keystroke capture, active-time tracking,
    screenshotting or login-duration surveillance. No third-party analytics or
