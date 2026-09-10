@@ -29,6 +29,7 @@ from app.schemas.task import TaskCreate, TaskDetailOut, TaskOut, TaskUpdate
 from app.schemas.user import UserRef
 from app.services import audit
 from app.services.authorization import AuthZ
+from app.services.notifications import NotificationService
 
 MAX_SUBTASK_DEPTH = 2  # spec §3.3
 
@@ -44,6 +45,7 @@ class TaskService:
         self._repo = TaskRepository(session)
         self._projects = ProjectRepository(session)
         self._users = UserRepository(session)
+        self._notify = NotificationService(session)
 
     # ---- serialization ----
     async def _to_out(
@@ -65,8 +67,7 @@ class TaskService:
         if with_subtasks and subtasks:
             states = {s.id: s for s in await self._projects.list_workflow_states(project.id)}
             out.subtasks = [
-                await self._to_out(st, project=project, state=states[st.state_id])
-                for st in subtasks
+                await self._to_out(st, project=project, state=states[st.state_id]) for st in subtasks
             ]
         return out
 
@@ -123,9 +124,7 @@ class TaskService:
         page.items = await self._decorate(page.items)
         return page
 
-    async def search(
-        self, actor: User, *, query: str, limit: int | None, cursor: str | None
-    ) -> Page:
+    async def search(self, actor: User, *, query: str, limit: int | None, cursor: str | None) -> Page:
         """Full-text search scoped to the caller's accessible projects (spec F-09)."""
         project_ids = await self._authz.accessible_project_ids()
         if not project_ids:
@@ -145,7 +144,6 @@ class TaskService:
             return []
         project_ids = {t.project_id for t in tasks}
         projects = {p.id: p for p in await self._projects.list_by_ids(project_ids, include_archived=True)}
-        state_ids = {t.state_id for t in tasks}
         states: dict[uuid.UUID, WorkflowState] = {}
         for pid in project_ids:
             for s in await self._projects.list_workflow_states(pid):
@@ -182,9 +180,7 @@ class TaskService:
             if parent is None or parent.project_id != project_id or parent.is_deleted:
                 raise ValidationError("Parent task not found in this project.")
             if parent.parent_task_id is not None:
-                raise ValidationError(
-                    f"Subtasks may not be nested deeper than {MAX_SUBTASK_DEPTH} levels."
-                )
+                raise ValidationError(f"Subtasks may not be nested deeper than {MAX_SUBTASK_DEPTH} levels.")
 
         states = await self._projects.list_workflow_states(project_id)
         if not states:
@@ -223,6 +219,10 @@ class TaskService:
             actor=actor,
             after={"seq": seq, "state_id": str(state.id), "priority": task.priority},
         )
+        if task.assignee_id:
+            await self._notify.emit_task_assigned(
+                task=task, task_ref=f"{project.key}-{seq}", assignee_id=task.assignee_id, actor=actor
+            )
         return await self._to_out(task, project=project, state=state, with_subtasks=True)
 
     async def update(
@@ -260,6 +260,7 @@ class TaskService:
             task.due_date = None
         if payload.estimate_hours is not None:
             task.estimate_hours = payload.estimate_hours
+        previous_assignee = task.assignee_id
         if payload.assignee_id is not None:
             if await self._users.get(payload.assignee_id) is None:
                 raise ValidationError("Assignee is not a known user.")
@@ -281,6 +282,13 @@ class TaskService:
             before=b,
             after=a,
         )
+        if task.assignee_id and task.assignee_id != previous_assignee:
+            await self._notify.emit_task_assigned(
+                task=task,
+                task_ref=f"{project.key}-{task.seq}",
+                assignee_id=task.assignee_id,
+                actor=actor,
+            )
         state = target_state or await self._projects.get_workflow_state(task.state_id)
         assert state is not None
         return await self._to_out(task, project=project, state=state, with_subtasks=True)
@@ -362,11 +370,20 @@ def _pick_state(states: Sequence[WorkflowState], state_id: uuid.UUID | None) -> 
     return next((s for s in states if s.is_default), states[0])
 
 
+_AUDITED_FIELDS = (
+    "title",
+    "state_id",
+    "priority",
+    "assignee_id",
+    "due_date",
+    "estimate_hours",
+    "completed_at",
+    "deleted_at",
+)
+
+
 def _audit_snapshot(task: Task) -> dict[str, object]:
-    return audit.snapshot(
-        task,
-        ("title", "state_id", "priority", "assignee_id", "due_date", "estimate_hours", "completed_at", "deleted_at"),
-    )
+    return audit.snapshot(task, _AUDITED_FIELDS)
 
 
 def _as_uuid(value: object) -> uuid.UUID | None:
@@ -376,7 +393,7 @@ def _as_uuid(value: object) -> uuid.UUID | None:
 
 
 def _as_int(value: object) -> int | None:
-    return None if value in (None, "") else int(value)  # type: ignore[arg-type]
+    return None if value in (None, "") else int(str(value))
 
 
 def _as_str(value: object) -> str | None:

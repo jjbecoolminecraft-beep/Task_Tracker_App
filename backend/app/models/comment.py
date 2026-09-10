@@ -18,13 +18,11 @@ class Comment(Base, TimestampMixin):
     task_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    author_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
-    )
+    author_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     # Resolved user ids from `@[Display Name](user-id)` markers in the body.
     mentioned_user_ids: Mapped[list[uuid.UUID]] = mapped_column(
         ARRAY(UUID(as_uuid=True)), nullable=False, default=list
     )
 
-    task: Mapped["Task"] = relationship(back_populates="comments", lazy="raise")  # noqa: F821
+    task: Mapped[Task] = relationship(back_populates="comments", lazy="raise")  # noqa: F821

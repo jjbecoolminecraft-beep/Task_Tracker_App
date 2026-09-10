@@ -11,6 +11,7 @@ lifecycle policies; nothing relies on manual cleanup.
 | Comments | With parent task | Cascade delete |
 | Attachments | With parent task | Blob lifecycle policy |
 | Audit events | 12 months | Monthly-partitioned table, drop oldest partition |
+| In-app notifications | 90 days | Nightly retention job |
 | Application logs | 90 days hot / 12 months archive | Log Analytics retention |
 | Deactivated users | Pseudonymised 90 days after Entra deactivation | Entra sync job |
 

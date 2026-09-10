@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 import pytest
-from sqlalchemy import select
-
 from app.core.db import session_scope
 from app.core.errors import AuthorizationError
 from app.domain.enums import Action, Role
 from app.models.project import Project
 from app.models.user import User
 from app.services.authorization import AuthZ
+from sqlalchemy import select
 
 
 async def _user(session, upn_prefix: str) -> User:
-    return (
-        await session.execute(select(User).where(User.upn.like(f"{upn_prefix}@%")))
-    ).scalar_one()
+    return (await session.execute(select(User).where(User.upn.like(f"{upn_prefix}@%")))).scalar_one()
 
 
 async def _project(session, key: str) -> Project:

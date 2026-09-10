@@ -59,7 +59,7 @@ def main() -> int:
     frank = login(by_name["Frank Müller"])
     greta = login(by_name["Greta Lang"])
     hugo = login(by_name["Hugo Bauer"])
-    bjoern = login(by_name["Björn Neumann"])
+    login(by_name["Björn Neumann"])
 
     print("\naccess scoping")
     _, projects, _ = call("GET", "/api/v1/projects", david)
@@ -81,17 +81,13 @@ def main() -> int:
     check("PATCH without If-Match -> 428", st, 428)
     st, _, _ = call("PATCH", f"/api/v1/tasks/{tid}", david, {"priority": 1}, if_match='"9"')
     check("PATCH stale If-Match -> 412", st, 412)
-    st, patched, _ = call(
-        "PATCH", f"/api/v1/tasks/{tid}", david, {"priority": 1}, if_match='"1"'
-    )
+    st, patched, _ = call("PATCH", f"/api/v1/tasks/{tid}", david, {"priority": 1}, if_match='"1"')
     check("PATCH good If-Match -> 200", st, 200)
     check("version bumped to 2", patched["version"], 2)
 
     _, states, _ = call("GET", f"/api/v1/projects/{mktg}/workflow-states", david)
     done = next(s["id"] for s in states if s["category"] == "done")
-    st, moved, _ = call(
-        "PATCH", f"/api/v1/tasks/{tid}", david, {"state_id": done}, if_match='"2"'
-    )
+    st, moved, _ = call("PATCH", f"/api/v1/tasks/{tid}", david, {"state_id": done}, if_match='"2"')
     check("move to done state -> 200", st, 200)
     check("completed_at set", moved["completed_at"], lambda v: v is not None)
 
@@ -117,9 +113,7 @@ def main() -> int:
 
     # Greta has a Guest share on exactly one MKTG task (seed): "Customer testimonial video edit".
     _, all_mktg, _ = call("GET", f"/api/v1/projects/{mktg}/tasks?limit=50", david)
-    guest_task = next(
-        i["id"] for i in all_mktg["items"] if i["title"] == "Customer testimonial video edit"
-    )
+    guest_task = next(i["id"] for i in all_mktg["items"] if i["title"] == "Customer testimonial video edit")
     non_shared = next(i["id"] for i in all_mktg["items"] if i["id"] != guest_task)
     st, _, _ = call("GET", f"/api/v1/tasks/{guest_task}", greta)
     check("Greta reads the task shared with her -> 200", st, 200)

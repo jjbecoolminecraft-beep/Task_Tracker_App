@@ -5,6 +5,7 @@ import { FolderKanban, ListChecks, LogOut, Search } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { setLanguage } from "@/i18n";
 import { Avatar } from "@/components/ui/Avatar";
+import { NotificationBell } from "./NotificationBell";
 
 const NAV = [
   { to: "/projects", key: "nav.projects", icon: FolderKanban },
@@ -39,6 +40,7 @@ export function AppShell() {
 
           <div className="flex items-center gap-4">
             <span className="hidden kb-label sm:block">{contextLabel(pathname, t)}</span>
+            {session && <NotificationBell />}
             <div className="flex overflow-hidden rounded border border-line text-xs font-semibold">
               {(["en", "de"] as const).map((lng) => (
                 <button

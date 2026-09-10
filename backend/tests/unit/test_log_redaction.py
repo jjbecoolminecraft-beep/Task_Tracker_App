@@ -1,7 +1,7 @@
 """The log-redaction filter (spec §7.4, §12): a test that fails if it is bypassed.
 
-    "No personal data in logs. Enforced by a redaction filter with a test that
-     fails if the filter is bypassed."
+"No personal data in logs. Enforced by a redaction filter with a test that
+ fails if the filter is bypassed."
 """
 
 from __future__ import annotations

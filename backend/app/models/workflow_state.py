@@ -19,9 +19,7 @@ from app.models.base import Base, TimestampMixin, uuid_pk
 
 class WorkflowState(Base, TimestampMixin):
     __tablename__ = "workflow_states"
-    __table_args__ = (
-        UniqueConstraint("project_id", "name", name="workflow_state_unique_name"),
-    )
+    __table_args__ = (UniqueConstraint("project_id", "name", name="workflow_state_unique_name"),)
 
     id: Mapped[uuid.UUID] = uuid_pk()
     project_id: Mapped[uuid.UUID] = mapped_column(
@@ -34,7 +32,7 @@ class WorkflowState(Base, TimestampMixin):
     position: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
 
-    project: Mapped["Project"] = relationship(  # noqa: F821
+    project: Mapped[Project] = relationship(  # noqa: F821
         back_populates="workflow_states", lazy="raise"
     )
 

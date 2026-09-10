@@ -19,7 +19,6 @@ from app.schemas.task import (
     TaskOut,
     TaskUpdate,
 )
-from app.services.tasks import etag_for
 
 router = APIRouter(tags=["tasks"])
 
@@ -133,9 +132,7 @@ async def delete_task(
 
 
 @router.get("/tasks/{task_id}/comments", response_model=list[CommentOut])
-async def list_comments(
-    task_id: uuid.UUID, service: CommentServiceDep, _: CurrentUser
-) -> list[CommentOut]:
+async def list_comments(task_id: uuid.UUID, service: CommentServiceDep, _: CurrentUser) -> list[CommentOut]:
     return await service.list_for_task(task_id)
 
 

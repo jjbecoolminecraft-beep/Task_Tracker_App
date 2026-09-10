@@ -121,7 +121,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.ForeignKeyConstraint(["created_by"], ["users.id"], name=op.f("fk_projects_created_by_users")),
-        sa.ForeignKeyConstraint(["portfolio_id"], ["portfolios.id"], name=op.f("fk_projects_portfolio_id_portfolios")),
+        sa.ForeignKeyConstraint(
+            ["portfolio_id"], ["portfolios.id"], name=op.f("fk_projects_portfolio_id_portfolios")
+        ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_projects")),
         sa.UniqueConstraint("key", name=op.f("uq_projects_key")),
     )
@@ -151,7 +153,9 @@ def upgrade() -> None:
         sa.Column("color", sa.String(length=9), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.ForeignKeyConstraint(["project_id"], ["projects.id"], name=op.f("fk_labels_project_id_projects"), ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["project_id"], ["projects.id"], name=op.f("fk_labels_project_id_projects"), ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_labels")),
         sa.UniqueConstraint("project_id", "name", name="label_unique_name"),
     )
@@ -166,7 +170,12 @@ def upgrade() -> None:
         sa.Column("role", sa.String(length=30), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.ForeignKeyConstraint(["project_id"], ["projects.id"], name=op.f("fk_project_members_project_id_projects"), ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["project_id"],
+            ["projects.id"],
+            name=op.f("fk_project_members_project_id_projects"),
+            ondelete="CASCADE",
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_project_members_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_project_members")),
         sa.UniqueConstraint("project_id", "user_id", name="project_member_unique"),
@@ -185,7 +194,12 @@ def upgrade() -> None:
         sa.Column("is_default", sa.Boolean(), server_default=sa.text("false"), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.ForeignKeyConstraint(["project_id"], ["projects.id"], name=op.f("fk_workflow_states_project_id_projects"), ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["project_id"],
+            ["projects.id"],
+            name=op.f("fk_workflow_states_project_id_projects"),
+            ondelete="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_workflow_states")),
         sa.UniqueConstraint("project_id", "name", name="workflow_state_unique_name"),
     )
@@ -216,7 +230,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["parent_task_id"], ["tasks.id"], name=op.f("fk_tasks_parent_task_id_tasks")),
         sa.ForeignKeyConstraint(["project_id"], ["projects.id"], name=op.f("fk_tasks_project_id_projects")),
         sa.ForeignKeyConstraint(["reporter_id"], ["users.id"], name=op.f("fk_tasks_reporter_id_users")),
-        sa.ForeignKeyConstraint(["state_id"], ["workflow_states.id"], name=op.f("fk_tasks_state_id_workflow_states")),
+        sa.ForeignKeyConstraint(
+            ["state_id"], ["workflow_states.id"], name=op.f("fk_tasks_state_id_workflow_states")
+        ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_tasks")),
         sa.UniqueConstraint("project_id", "seq", name="task_seq_unique"),
     )
@@ -225,9 +241,7 @@ def upgrade() -> None:
     op.create_index(op.f("ix_tasks_parent_task_id"), "tasks", ["parent_task_id"])
     op.create_index(op.f("ix_tasks_project_id"), "tasks", ["project_id"])
     op.create_index(op.f("ix_tasks_state_id"), "tasks", ["state_id"])
-    op.create_index(
-        "ix_tasks_search_vector", "tasks", ["search_vector"], postgresql_using="gin"
-    )
+    op.create_index("ix_tasks_search_vector", "tasks", ["search_vector"], postgresql_using="gin")
 
     op.create_table(
         "comments",
@@ -239,7 +253,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.ForeignKeyConstraint(["author_id"], ["users.id"], name=op.f("fk_comments_author_id_users")),
-        sa.ForeignKeyConstraint(["task_id"], ["tasks.id"], name=op.f("fk_comments_task_id_tasks"), ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["task_id"], ["tasks.id"], name=op.f("fk_comments_task_id_tasks"), ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_comments")),
     )
     op.create_index(op.f("ix_comments_task_id"), "comments", ["task_id"])
@@ -248,8 +264,12 @@ def upgrade() -> None:
         "task_labels",
         sa.Column("task_id", sa.UUID(), nullable=False),
         sa.Column("label_id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(["label_id"], ["labels.id"], name=op.f("fk_task_labels_label_id_labels"), ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["task_id"], ["tasks.id"], name=op.f("fk_task_labels_task_id_tasks"), ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["label_id"], ["labels.id"], name=op.f("fk_task_labels_label_id_labels"), ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["task_id"], ["tasks.id"], name=op.f("fk_task_labels_task_id_tasks"), ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("task_id", "label_id", name=op.f("pk_task_labels")),
     )
 
@@ -262,7 +282,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.ForeignKeyConstraint(["shared_by"], ["users.id"], name=op.f("fk_task_shares_shared_by_users")),
-        sa.ForeignKeyConstraint(["task_id"], ["tasks.id"], name=op.f("fk_task_shares_task_id_tasks"), ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["task_id"], ["tasks.id"], name=op.f("fk_task_shares_task_id_tasks"), ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_task_shares_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_task_shares")),
         sa.UniqueConstraint("task_id", "user_id", name="task_share_unique"),

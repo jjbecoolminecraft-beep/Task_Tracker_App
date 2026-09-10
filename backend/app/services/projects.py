@@ -66,7 +66,8 @@ class ProjectService:
         result: list[ProjectOut] = []
         for project in projects:
             role = await self._authz.effective_project_role(project)
-            result.append(await self._to_out(project, role=role, open_count=open_by_project.get(project.id, 0)))
+            open_count = open_by_project.get(project.id, 0)
+            result.append(await self._to_out(project, role=role, open_count=open_count))
         return result
 
     async def get(self, project_id: uuid.UUID) -> ProjectOut:
@@ -126,9 +127,7 @@ class ProjectService:
         )
         return await self._to_out(project, role=Role.PROJECT_ADMIN, open_count=0)
 
-    async def update(
-        self, project_id: uuid.UUID, payload: ProjectUpdate, actor: User
-    ) -> ProjectOut:
+    async def update(self, project_id: uuid.UUID, payload: ProjectUpdate, actor: User) -> ProjectOut:
         project = await self._require_project(project_id)
         await self._authz.require(Action.PROJECT_UPDATE, project)
 
@@ -215,9 +214,7 @@ class ProjectService:
             existing.role = payload.role.value
             member = existing
         else:
-            member = ProjectMember(
-                project_id=project_id, user_id=payload.user_id, role=payload.role.value
-            )
+            member = ProjectMember(project_id=project_id, user_id=payload.user_id, role=payload.role.value)
             self._repo.add_member(member)
         await self._s.flush()
         await audit.record(
@@ -232,9 +229,7 @@ class ProjectService:
         row = ProjectMemberOut.model_validate(member)
         return row
 
-    async def remove_member(
-        self, project_id: uuid.UUID, user_id: uuid.UUID, actor: User
-    ) -> None:
+    async def remove_member(self, project_id: uuid.UUID, user_id: uuid.UUID, actor: User) -> None:
         project = await self._require_project(project_id)
         await self._authz.require(Action.PROJECT_MANAGE_MEMBERS, project)
         member = await self._repo.get_member(project_id, user_id)
@@ -261,8 +256,4 @@ class ProjectService:
 async def portfolio_grants_for(session: AsyncSession, user_id: uuid.UUID) -> Sequence[RoleGrant]:
     from sqlalchemy import select
 
-    return (
-        (await session.execute(select(RoleGrant).where(RoleGrant.user_id == user_id)))
-        .scalars()
-        .all()
-    )
+    return (await session.execute(select(RoleGrant).where(RoleGrant.user_id == user_id))).scalars().all()

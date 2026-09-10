@@ -17,9 +17,7 @@ class CommentRepository:
         return (
             (
                 await self._s.execute(
-                    select(Comment)
-                    .where(Comment.task_id == task_id)
-                    .order_by(Comment.created_at)
+                    select(Comment).where(Comment.task_id == task_id).order_by(Comment.created_at)
                 )
             )
             .scalars()

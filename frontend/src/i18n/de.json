@@ -98,6 +98,18 @@
     "subtitle": "Alles, was Ihnen zugewiesen ist – über alle zugänglichen Projekte hinweg",
     "empty": "Ihnen ist derzeit nichts zugewiesen"
   },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "empty": "Alles erledigt",
+    "someone": "Jemand",
+    "kind": {
+      "task.assigned": "{{who}} hat Ihnen {{ref}} zugewiesen",
+      "comment.mention": "{{who}} hat Sie in {{ref}} erwähnt",
+      "comment.added": "{{who}} hat {{ref}} kommentiert",
+      "task.due_soon": "{{ref}} ist bald fällig"
+    }
+  },
   "search": {
     "title": "Suche",
     "placeholder": "Aufgaben in Ihren Projekten suchen",

@@ -146,9 +146,7 @@ EXPECTATIONS: dict[str, dict[str, str]] = {
 }
 
 _CASES = [
-    (label, actor, verdict)
-    for label, actors in EXPECTATIONS.items()
-    for actor, verdict in actors.items()
+    (label, actor, verdict) for label, actors in EXPECTATIONS.items() for actor, verdict in actors.items()
 ]
 
 
@@ -173,13 +171,15 @@ async def test_endpoint_matrix(as_user, world, dev_users, label, actor, verdict)
     if verdict == ALLOW:
         # 428 = authorization passed, the handler now wants an If-Match precondition
         # (optimistic concurrency). That is still an "allowed" outcome for this matrix.
-        assert resp.status_code < 400 or resp.status_code == 428, (
-            f"{actor} should be allowed to {label}, got {resp.status_code}: {resp.text}"
-        )
+        assert (
+            resp.status_code < 400 or resp.status_code == 428
+        ), f"{actor} should be allowed to {label}, got {resp.status_code}: {resp.text}"
     else:
-        assert resp.status_code in (401, 403, 404), (
-            f"{actor} should be denied {label}, got {resp.status_code}: {resp.text}"
-        )
+        assert resp.status_code in (
+            401,
+            403,
+            404,
+        ), f"{actor} should be denied {label}, got {resp.status_code}: {resp.text}"
 
 
 async def test_unauthenticated_is_rejected(client, world):

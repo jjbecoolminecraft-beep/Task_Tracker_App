@@ -27,12 +27,12 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # --- HTTP ---
-    api_host: str = "0.0.0.0"  # noqa: S104 - bind-all is intentional inside the container
+    # Bind-all is intentional: the process only ever listens inside a container
+    # whose ingress is private (Container Apps internal ingress, spec §6.2).
+    api_host: str = "0.0.0.0"  # nosec B104  # noqa: S104
     api_port: int = 8000
     # NoDecode: let the validator below split the CSV; don't JSON-parse the raw value.
-    cors_origins: Annotated[list[str], NoDecode] = Field(
-        default_factory=lambda: ["http://localhost:5173"]
-    )
+    cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173"])
 
     # --- data stores ---
     database_url: str = "postgresql+asyncpg://tracker:tracker@localhost:5432/tracker"

@@ -25,12 +25,13 @@ A runnable MVP vertical slice:
 | Domain | Portfolio → Project → Task → Subtask, per‑project workflow states, comments + `@mention`, labels, guest task shares, audit trail |
 | API | Project & task CRUD, board/list, `My tasks`, full‑text search (Postgres `tsvector`), cursor pagination, optimistic concurrency (`If-Match`/`ETag`), error envelope + `X-Request-Id`, OpenAPI at `/api/v1/docs` |
 | Audit | Every mutation writes an `audit_events` row in the same transaction; table is append‑only (DB trigger); read access is Auditor‑only |
-| Web | Login (identity picker), Projects, Project **List** + **Board** (drag + keyboard), Task detail drawer (inline edit, comments, subtasks), My tasks, Search — English/German i18n |
+| Notifications (F‑10) | In‑app feed for task assignment and comment `@mention` / activity; created in the same transaction, scoped strictly to the recipient, never for the actor's own action. Email digest is a worker job (stubbed) |
+| Web | Login (identity picker), Projects, Project **List** + **Board** (drag + keyboard), Task detail drawer (inline edit, comments, subtasks), My tasks, Search, notification bell — English/German i18n |
 | Infra | `infra/` Bicep: VNet + private endpoints, PostgreSQL Flexible Server (Entra auth, zone‑redundant HA), Redis, Blob, Key Vault, Container Apps, Static Web App, Front Door + WAF, EU‑only Azure Policy |
 | Compliance | DPIA outline, RoPA entry, retention concept, works‑agreement outline in `docs/compliance/` |
 
-Not yet: notifications/digests, Teams, import/export, attachments upload,
-dashboards, saved views, real Entra wiring, worker/scheduler processes.
+Not yet: email digests, Teams, import/export, attachments upload, dashboards,
+saved views, real Entra wiring, running worker/scheduler processes.
 
 ---
 

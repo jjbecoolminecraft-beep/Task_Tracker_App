@@ -19,9 +19,7 @@ class ProjectRepository:
         return await self._s.get(Project, project_id)
 
     async def get_by_key(self, key: str) -> Project | None:
-        return (
-            await self._s.execute(select(Project).where(Project.key == key))
-        ).scalar_one_or_none()
+        return (await self._s.execute(select(Project).where(Project.key == key))).scalar_one_or_none()
 
     async def list_by_ids(
         self, ids: Iterable[uuid.UUID], *, include_archived: bool = False
@@ -41,18 +39,12 @@ class ProjectRepository:
     # ---- members ----
     async def list_members(self, project_id: uuid.UUID) -> Sequence[ProjectMember]:
         return (
-            (
-                await self._s.execute(
-                    select(ProjectMember).where(ProjectMember.project_id == project_id)
-                )
-            )
+            (await self._s.execute(select(ProjectMember).where(ProjectMember.project_id == project_id)))
             .scalars()
             .all()
         )
 
-    async def get_member(
-        self, project_id: uuid.UUID, user_id: uuid.UUID
-    ) -> ProjectMember | None:
+    async def get_member(self, project_id: uuid.UUID, user_id: uuid.UUID) -> ProjectMember | None:
         return (
             await self._s.execute(
                 select(ProjectMember).where(

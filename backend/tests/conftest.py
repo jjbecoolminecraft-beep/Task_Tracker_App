@@ -17,9 +17,7 @@ from pathlib import Path
 import pytest
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
-ADMIN_DSN = os.environ.get(
-    "TEST_ADMIN_DSN", "postgresql://tracker:tracker@localhost:5432/postgres"
-)
+ADMIN_DSN = os.environ.get("TEST_ADMIN_DSN", "postgresql://tracker:tracker@localhost:5432/postgres")
 TEST_DB = "tracker_test"
 TEST_URL = f"postgresql+asyncpg://tracker:tracker@localhost:5432/{TEST_DB}"
 
@@ -31,7 +29,6 @@ os.environ["DEV_AUTH_SECRET"] = "test-secret-key-at-least-32-bytes-long-000"
 
 import asyncpg  # noqa: E402
 import httpx  # noqa: E402
-
 from app.core.db import engine  # noqa: E402
 from app.main import app  # noqa: E402
 from app.seed import seed  # noqa: E402
@@ -41,9 +38,7 @@ def _recreate_database() -> None:
     async def _run() -> None:
         conn = await asyncpg.connect(ADMIN_DSN)
         try:
-            await conn.execute(
-                f'DROP DATABASE IF EXISTS "{TEST_DB}" WITH (FORCE)'
-            )
+            await conn.execute(f'DROP DATABASE IF EXISTS "{TEST_DB}" WITH (FORCE)')
             await conn.execute(f'CREATE DATABASE "{TEST_DB}"')
         finally:
             await conn.close()

@@ -70,18 +70,19 @@ class AuthZ:
         if self._global_roles is not None:
             return
         rows = (
-            await self._session.execute(
-                select(RoleGrant).where(RoleGrant.user_id == self._user.id)
-            )
+            await self._session.execute(select(RoleGrant).where(RoleGrant.user_id == self._user.id))
         ).scalars()
         globals_: set[Role] = set()
         portfolios: set[uuid.UUID] = set()
         for grant in rows:
             if grant.scope_type == "global":
                 globals_.add(grant.role_enum)
-            elif grant.scope_type == "portfolio" and grant.scope_id is not None:
-                if grant.role_enum == Role.PORTFOLIO_OWNER:
-                    portfolios.add(grant.scope_id)
+            elif (
+                grant.scope_type == "portfolio"
+                and grant.scope_id is not None
+                and grant.role_enum == Role.PORTFOLIO_OWNER
+            ):
+                portfolios.add(grant.scope_id)
         self._global_roles = globals_
         self._portfolio_owner_ids = portfolios
 
@@ -104,13 +105,17 @@ class AuthZ:
             return Role.PROJECT_ADMIN
 
         membership = (
-            await self._session.execute(
-                select(ProjectMember).where(
-                    ProjectMember.project_id == project.id,
-                    ProjectMember.user_id == self._user.id,
+            (
+                await self._session.execute(
+                    select(ProjectMember).where(
+                        ProjectMember.project_id == project.id,
+                        ProjectMember.user_id == self._user.id,
+                    )
                 )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         roles = {m.role_enum for m in membership}
         for role in (Role.PROJECT_ADMIN, Role.CONTRIBUTOR, Role.VIEWER):
             if role in roles:
@@ -126,12 +131,16 @@ class AuthZ:
         guest_task_ids: frozenset[uuid.UUID] = frozenset()
         if role is None:
             shared = (
-                await self._session.execute(
-                    select(TaskShare.task_id)
-                    .join(Task, Task.id == TaskShare.task_id)
-                    .where(Task.project_id == project.id, TaskShare.user_id == self._user.id)
+                (
+                    await self._session.execute(
+                        select(TaskShare.task_id)
+                        .join(Task, Task.id == TaskShare.task_id)
+                        .where(Task.project_id == project.id, TaskShare.user_id == self._user.id)
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             if shared:
                 guest_task_ids = frozenset(shared)
                 role = Role.GUEST
@@ -158,9 +167,7 @@ class AuthZ:
 
         internal_rows = (
             await self._session.execute(
-                select(Project.id).where(
-                    Project.visibility == ProjectVisibility.INTERNAL.value
-                )
+                select(Project.id).where(Project.visibility == ProjectVisibility.INTERNAL.value)
             )
         ).scalars()
         ids.update(internal_rows)
@@ -168,9 +175,7 @@ class AuthZ:
         if self._portfolio_owner_ids:
             portfolio_rows = (
                 await self._session.execute(
-                    select(Project.id).where(
-                        Project.portfolio_id.in_(self._portfolio_owner_ids)
-                    )
+                    select(Project.id).where(Project.portfolio_id.in_(self._portfolio_owner_ids))
                 )
             ).scalars()
             ids.update(portfolio_rows)
@@ -200,9 +205,7 @@ class AuthZ:
             raise AuthorizationError(f"Not permitted: {action.value}")
         return decision if isinstance(decision, ResolvedAccess) else None
 
-    async def _evaluate(
-        self, action: Action, resource: object | None
-    ) -> bool | ResolvedAccess:
+    async def _evaluate(self, action: Action, resource: object | None) -> bool | ResolvedAccess:
         # Platform-only actions: audit reading is the Auditor's alone (spec §8.4.4).
         if action in _PLATFORM_ACTIONS:
             if action == Action.AUDIT_READ:
@@ -236,9 +239,7 @@ class AuthZ:
             return access if access.can_write else False
         return False
 
-    async def _evaluate_task(
-        self, action: Action, task: Task, project: Project
-    ) -> bool | ResolvedAccess:
+    async def _evaluate_task(self, action: Action, task: Task, project: Project) -> bool | ResolvedAccess:
         access = await self.resolve(project)
 
         if access.role == Role.GUEST:

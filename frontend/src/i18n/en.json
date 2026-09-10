@@ -98,6 +98,18 @@
     "subtitle": "Everything assigned to you, across every project you can access",
     "empty": "Nothing assigned to you right now"
   },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "You're all caught up",
+    "someone": "Someone",
+    "kind": {
+      "task.assigned": "{{who}} assigned {{ref}} to you",
+      "comment.mention": "{{who}} mentioned you on {{ref}}",
+      "comment.added": "{{who}} commented on {{ref}}",
+      "task.due_soon": "{{ref}} is due soon"
+    }
+  },
   "search": {
     "title": "Search",
     "placeholder": "Search tasks across your projects",

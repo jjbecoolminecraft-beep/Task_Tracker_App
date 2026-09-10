@@ -120,6 +120,24 @@ export interface ProjectMember {
   display_name: string | null;
 }
 
+export type NotificationKind =
+  | "task.assigned"
+  | "comment.mention"
+  | "comment.added"
+  | "task.due_soon";
+
+export interface Notification {
+  id: string;
+  kind: NotificationKind | string;
+  task_id: string | null;
+  project_id: string | null;
+  actor_name: string | null;
+  task_ref: string | null;
+  snippet: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface ApiError {
   code: string;
   message: string;

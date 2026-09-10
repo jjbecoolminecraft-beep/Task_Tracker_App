@@ -6,11 +6,10 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy.ext.asyncio import async_engine_from_config
-from sqlalchemy.pool import NullPool
-
 from app.core.config import settings
 from app.models import Base  # noqa: F401 - registers all tables on Base.metadata
+from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.pool import NullPool
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
@@ -20,6 +19,14 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+# Objects created by raw SQL in a migration (not declared on a model) — exclude
+# them from autogenerate so it doesn't propose dropping them every time.
+_UNMANAGED_OBJECTS = {("index", "ix_tasks_search_vector")}
+
+
+def _include_object(obj, name, type_, _reflected, _compare_to) -> bool:  # type: ignore[no-untyped-def]
+    return (type_, name) not in _UNMANAGED_OBJECTS
+
 
 def _run_migrations(connection) -> None:  # type: ignore[no-untyped-def]
     context.configure(
@@ -27,6 +34,7 @@ def _run_migrations(connection) -> None:  # type: ignore[no-untyped-def]
         target_metadata=target_metadata,
         compare_type=True,
         compare_server_default=True,
+        include_object=_include_object,
     )
     with context.begin_transaction():
         context.run_migrations()

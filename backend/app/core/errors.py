@@ -28,9 +28,7 @@ class AppError(Exception):
     status_code: int = status.HTTP_400_BAD_REQUEST
     code: str = "bad_request"
 
-    def __init__(
-        self, message: str, *, details: Any | None = None, code: str | None = None
-    ) -> None:
+    def __init__(self, message: str, *, details: Any | None = None, code: str | None = None) -> None:
         super().__init__(message)
         self.message = message
         self.details = details

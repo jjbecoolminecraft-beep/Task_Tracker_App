@@ -12,12 +12,14 @@ from app.domain.enums import Action
 from app.models.comment import Comment
 from app.models.user import User
 from app.repositories.comments import CommentRepository
+from app.repositories.projects import ProjectRepository
 from app.repositories.tasks import TaskRepository
 from app.repositories.users import UserRepository
 from app.schemas.task import CommentCreate, CommentOut
 from app.schemas.user import UserRef
 from app.services import audit
 from app.services.authorization import AuthZ
+from app.services.notifications import NotificationService
 
 # Frontend inserts mentions as `@[Display Name](user-uuid)`.
 _MENTION_RE = re.compile(r"@\[[^\]]+\]\(([0-9a-fA-F-]{36})\)")
@@ -29,7 +31,9 @@ class CommentService:
         self._authz = authz
         self._repo = CommentRepository(session)
         self._tasks = TaskRepository(session)
+        self._projects = ProjectRepository(session)
         self._users = UserRepository(session)
+        self._notify = NotificationService(session)
 
     async def list_for_task(self, task_id: uuid.UUID) -> list[CommentOut]:
         task = await self._tasks.get(task_id)
@@ -78,7 +82,17 @@ class CommentService:
             actor=actor,
             after={"task_id": str(task_id), "mentions": len(mentioned)},
         )
-        # TODO(F-10): enqueue in-app + digest notifications for mentioned users.
+
+        project = await self._projects.get(task.project_id)
+        await self._notify.emit_comment(
+            task=task,
+            task_ref=f"{project.key}-{task.seq}" if project else str(task.seq),
+            actor=actor,
+            mentioned_user_ids=mentioned,
+            snippet=payload.body,
+        )
+        # Email digest of these notifications is a worker job (app/workers/digest.py).
+
         row = CommentOut.model_validate(comment)
         row.author = UserRef(id=actor.id, display_name=actor.display_name)
         return row

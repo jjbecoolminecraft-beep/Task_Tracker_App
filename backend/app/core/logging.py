@@ -58,7 +58,7 @@ def _scrub_value(value: Any) -> Any:
         return _EMAIL_RE.sub(_REDACTED, value)
     if isinstance(value, dict):
         return {k: _scrub_mapping_entry(k, v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         return type(value)(_scrub_value(v) for v in value)
     return value
 
@@ -70,15 +70,15 @@ def _scrub_mapping_entry(key: str, value: Any) -> Any:
 
 
 def redact_personal_data(
-    _logger: Any, _method: str, event_dict: dict[str, Any]
-) -> dict[str, Any]:
+    _logger: Any, _method: str, event_dict: structlog.types.EventDict
+) -> structlog.types.EventDict:
     """structlog processor: drop/scrub anything that could be personal data."""
     return {key: _scrub_mapping_entry(key, value) for key, value in event_dict.items()}
 
 
 def _bind_request_context(
-    _logger: Any, _method: str, event_dict: dict[str, Any]
-) -> dict[str, Any]:
+    _logger: Any, _method: str, event_dict: structlog.types.EventDict
+) -> structlog.types.EventDict:
     request_id = get_request_id()
     if request_id:
         event_dict.setdefault("request_id", request_id)

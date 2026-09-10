@@ -30,7 +30,7 @@ class Cursor:
         return base64.urlsafe_b64encode(raw.encode()).decode()
 
     @classmethod
-    def decode(cls, token: str) -> "Cursor":
+    def decode(cls, token: str) -> Cursor:
         try:
             data = json.loads(base64.urlsafe_b64decode(token.encode()))
             return cls(sort_value=data["v"], last_id=str(data["id"]))
@@ -53,6 +53,6 @@ def clamp_limit(limit: int | None) -> int:
 
 
 def _jsonify(value: Any) -> Any:
-    if isinstance(value, (datetime, date)):
+    if isinstance(value, datetime | date):
         return value.isoformat()
     return value

@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
-from sqlalchemy import Select, and_, func, or_, select
+from sqlalchemy import Select, and_, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination import Cursor, Page, clamp_limit
@@ -59,11 +59,7 @@ class TaskRepository:
             select(Project.task_seq).where(Project.id == project_id).with_for_update()
         )
         new_value = int(value or 0) + 1
-        await self._s.execute(
-            Project.__table__.update()
-            .where(Project.id == project_id)
-            .values(task_seq=new_value)
-        )
+        await self._s.execute(update(Project).where(Project.id == project_id).values(task_seq=new_value))
         return new_value
 
     def add(self, task: Task) -> None:
@@ -82,9 +78,7 @@ class TaskRepository:
             .all()
         )
 
-    async def count_open_by_state(
-        self, project_ids: Sequence[uuid.UUID]
-    ) -> dict[uuid.UUID, int]:
+    async def count_open_by_state(self, project_ids: Sequence[uuid.UUID]) -> dict[uuid.UUID, int]:
         if not project_ids:
             return {}
         rows = (
@@ -93,8 +87,8 @@ class TaskRepository:
                 .where(Task.project_id.in_(set(project_ids)), Task.deleted_at.is_(None))
                 .group_by(Task.state_id)
             )
-        ).all()
-        return {sid: n for sid, n in rows}
+        ).tuples()
+        return dict(rows.all())
 
     def _base_query(self, f: TaskFilter) -> Select[tuple[Task]]:
         stmt = select(Task).where(Task.project_id.in_(set(f.project_ids)))
@@ -117,14 +111,10 @@ class TaskRepository:
         elif f.top_level_only:
             stmt = stmt.where(Task.parent_task_id.is_(None))
         if f.search:
-            stmt = stmt.where(
-                Task.search_vector.op("@@")(func.websearch_to_tsquery("english", f.search))
-            )
+            stmt = stmt.where(Task.search_vector.op("@@")(func.websearch_to_tsquery("english", f.search)))
         return stmt
 
-    async def list(
-        self, f: TaskFilter, *, limit: int | None, cursor: str | None
-    ) -> TaskListResult:
+    async def list(self, f: TaskFilter, *, limit: int | None, cursor: str | None) -> TaskListResult:
         page_size = clamp_limit(limit)
         stmt = self._base_query(f)
 
@@ -159,9 +149,7 @@ class TaskRepository:
         if len(rows) > page_size:
             rows = rows[:page_size]
             tail = rows[-1]
-            next_cursor = Cursor(
-                sort_value=getattr(tail, col_name), last_id=str(tail.id)
-            ).encode()
+            next_cursor = Cursor(sort_value=getattr(tail, col_name), last_id=str(tail.id)).encode()
         return TaskListResult(items=rows, next_cursor=next_cursor)
 
     async def paginate_page(self, f: TaskFilter, *, limit: int | None, cursor: str | None) -> Page:

@@ -30,16 +30,12 @@ async def list_projects(
 
 
 @router.post("", response_model=ProjectOut, status_code=status.HTTP_201_CREATED)
-async def create_project(
-    payload: ProjectCreate, service: ProjectServiceDep, user: CurrentUser
-) -> ProjectOut:
+async def create_project(payload: ProjectCreate, service: ProjectServiceDep, user: CurrentUser) -> ProjectOut:
     return await service.create(payload, user)
 
 
 @router.get("/{project_id}", response_model=ProjectOut)
-async def get_project(
-    project_id: uuid.UUID, service: ProjectServiceDep, _: CurrentUser
-) -> ProjectOut:
+async def get_project(project_id: uuid.UUID, service: ProjectServiceDep, _: CurrentUser) -> ProjectOut:
     return await service.get(project_id)
 
 
@@ -51,9 +47,7 @@ async def update_project(
 
 
 @router.post("/{project_id}/archive", response_model=ProjectOut)
-async def archive_project(
-    project_id: uuid.UUID, service: ProjectServiceDep, user: CurrentUser
-) -> ProjectOut:
+async def archive_project(project_id: uuid.UUID, service: ProjectServiceDep, user: CurrentUser) -> ProjectOut:
     return await service.archive(project_id, user)
 
 

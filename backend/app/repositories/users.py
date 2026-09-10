@@ -17,18 +17,13 @@ class UserRepository:
         return await self._s.get(User, user_id)
 
     async def get_by_entra_oid(self, oid: uuid.UUID) -> User | None:
-        return (
-            await self._s.execute(select(User).where(User.entra_object_id == oid))
-        ).scalar_one_or_none()
+        return (await self._s.execute(select(User).where(User.entra_object_id == oid))).scalar_one_or_none()
 
     async def list_active(self, limit: int = 500) -> Sequence[User]:
         return (
             (
                 await self._s.execute(
-                    select(User)
-                    .where(User.is_active.is_(True))
-                    .order_by(User.display_name)
-                    .limit(limit)
+                    select(User).where(User.is_active.is_(True)).order_by(User.display_name).limit(limit)
                 )
             )
             .scalars()
@@ -38,7 +33,5 @@ class UserRepository:
     async def get_many(self, ids: Sequence[uuid.UUID]) -> dict[uuid.UUID, User]:
         if not ids:
             return {}
-        rows = (
-            (await self._s.execute(select(User).where(User.id.in_(set(ids))))).scalars().all()
-        )
+        rows = (await self._s.execute(select(User).where(User.id.in_(set(ids))))).scalars().all()
         return {u.id: u for u in rows}

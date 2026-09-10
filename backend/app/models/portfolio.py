@@ -17,6 +17,6 @@ class Portfolio(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(String(2000))
 
-    projects: Mapped[list["Project"]] = relationship(  # noqa: F821
+    projects: Mapped[list[Project]] = relationship(  # noqa: F821
         back_populates="portfolio", lazy="raise"
     )

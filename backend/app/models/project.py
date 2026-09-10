@@ -35,18 +35,16 @@ class Project(Base, TimestampMixin):
     # inside the task-create transaction (spec §3.3, docs/adr/0005).
     task_seq: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
 
-    created_by: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id")
-    )
+    created_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    portfolio: Mapped["Portfolio | None"] = relationship(  # noqa: F821
+    portfolio: Mapped[Portfolio | None] = relationship(  # noqa: F821
         back_populates="projects", lazy="raise"
     )
-    members: Mapped[list["ProjectMember"]] = relationship(
+    members: Mapped[list[ProjectMember]] = relationship(
         back_populates="project", lazy="raise", cascade="all, delete-orphan"
     )
-    workflow_states: Mapped[list["WorkflowState"]] = relationship(  # noqa: F821
+    workflow_states: Mapped[list[WorkflowState]] = relationship(  # noqa: F821
         back_populates="project", lazy="raise", cascade="all, delete-orphan"
     )
 
@@ -60,21 +58,17 @@ class ProjectMember(Base, TimestampMixin):
     """
 
     __tablename__ = "project_members"
-    __table_args__ = (
-        UniqueConstraint("project_id", "user_id", name="project_member_unique"),
-    )
+    __table_args__ = (UniqueConstraint("project_id", "user_id", name="project_member_unique"),)
 
     id: Mapped[uuid.UUID] = uuid_pk()
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), index=True
-    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
     entra_group_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), index=True)
     role: Mapped[str] = mapped_column(String(30), nullable=False)  # Role value, project-scoped
 
-    project: Mapped["Project"] = relationship(back_populates="members", lazy="raise")
+    project: Mapped[Project] = relationship(back_populates="members", lazy="raise")
 
     @property
     def role_enum(self) -> Role:

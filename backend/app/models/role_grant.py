@@ -22,9 +22,7 @@ from app.models.base import Base, TimestampMixin, uuid_pk
 class RoleGrant(Base, TimestampMixin):
     __tablename__ = "role_grants"
     __table_args__ = (
-        UniqueConstraint(
-            "user_id", "role", "scope_type", "scope_id", name="role_grant_unique"
-        ),
+        UniqueConstraint("user_id", "role", "scope_type", "scope_id", name="role_grant_unique"),
     )
 
     id: Mapped[uuid.UUID] = uuid_pk()

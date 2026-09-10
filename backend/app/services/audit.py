@@ -33,11 +33,11 @@ _AUDITABLE_TASK_FIELDS = (
 
 
 def _jsonable(value: Any) -> Any:
-    if value is None or isinstance(value, (str, int, float, bool)):
+    if value is None or isinstance(value, str | int | float | bool):
         return value
-    if isinstance(value, (uuid.UUID, Decimal)):
+    if isinstance(value, uuid.UUID | Decimal):
         return str(value)
-    if isinstance(value, (datetime, date)):
+    if isinstance(value, datetime | date):
         return value.isoformat()
     return str(value)
 

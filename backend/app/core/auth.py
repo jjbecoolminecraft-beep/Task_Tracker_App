@@ -86,9 +86,7 @@ def _bearer_token(request: Request) -> str:
 async def _provision_user(session: AsyncSession, claims: dict[str, Any]) -> User:
     """Just-in-time provisioning on first sign-in (spec §2.1)."""
     oid = uuid.UUID(str(claims["oid"]))
-    user = (
-        await session.execute(select(User).where(User.entra_object_id == oid))
-    ).scalar_one_or_none()
+    user = (await session.execute(select(User).where(User.entra_object_id == oid))).scalar_one_or_none()
 
     if user is None:
         user = User(

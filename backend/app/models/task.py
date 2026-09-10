@@ -47,15 +47,11 @@ class Task(Base, TimestampMixin):
     state_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("workflow_states.id"), nullable=False, index=True
     )
-    priority: Mapped[int] = mapped_column(
-        SmallInteger, nullable=False, server_default=text("3")
-    )
+    priority: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("3"))
     assignee_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), index=True
     )
-    reporter_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
-    )
+    reporter_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
 
     due_date: Mapped[date | None] = mapped_column(Date)
     estimate_hours: Mapped[float | None] = mapped_column(Numeric(6, 2))
@@ -69,12 +65,12 @@ class Task(Base, TimestampMixin):
     # ETag source for optimistic concurrency (spec §5.2, If-Match / 412).
     version: Mapped[int] = mapped_column(nullable=False, server_default=text("1"))
 
-    project: Mapped["Project"] = relationship(lazy="raise")  # noqa: F821
-    state: Mapped["WorkflowState"] = relationship(lazy="raise")  # noqa: F821
+    project: Mapped[Project] = relationship(lazy="raise")  # noqa: F821
+    state: Mapped[WorkflowState] = relationship(lazy="raise")  # noqa: F821
     # Subtasks are queried explicitly (parent_task_id == id) rather than via a
     # self-referential relationship — keeps the mapper config simple and the
     # depth-2 cap lives in the service layer anyway.
-    comments: Mapped[list["Comment"]] = relationship(  # noqa: F821
+    comments: Mapped[list[Comment]] = relationship(  # noqa: F821
         back_populates="task", lazy="raise", cascade="all, delete-orphan"
     )
 
@@ -87,9 +83,7 @@ class TaskShare(Base, TimestampMixin):
     """Guest access: a named internal user granted access to one explicit task."""
 
     __tablename__ = "task_shares"
-    __table_args__ = (
-        UniqueConstraint("task_id", "user_id", name="task_share_unique"),
-    )
+    __table_args__ = (UniqueConstraint("task_id", "user_id", name="task_share_unique"),)
 
     id: Mapped[uuid.UUID] = uuid_pk()
     task_id: Mapped[uuid.UUID] = mapped_column(
@@ -98,6 +92,4 @@ class TaskShare(Base, TimestampMixin):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
-    shared_by: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
-    )
+    shared_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)

@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { del, get, patch, post } from "./api";
+import { api, del, get, patch, post } from "./api";
 import type {
   Comment,
   DevUser,
+  Notification,
   Paginated,
   Project,
   ProjectMember,
@@ -23,6 +24,8 @@ export const keys = {
   myTasks: ["me", "tasks"] as const,
   users: ["users"] as const,
   search: (q: string) => ["search", q] as const,
+  notifications: ["me", "notifications"] as const,
+  unreadCount: ["me", "notifications", "unread-count"] as const,
 };
 
 export const useDevUsers = () =>
@@ -181,5 +184,43 @@ export function useCreateProject() {
     mutationFn: (body: Record<string, unknown>) =>
       post<Project>("/projects", body).then((r) => r.data),
     onSuccess: () => void qc.invalidateQueries({ queryKey: keys.projects }),
+  });
+}
+
+// ---- notifications (spec F-10) ----
+
+export const useUnreadCount = () =>
+  useQuery({
+    queryKey: keys.unreadCount,
+    queryFn: () => get<{ unread: number }>("/me/notifications/unread-count"),
+    refetchInterval: 30_000, // WebSocket push is Phase 2 (F-27); poll for now
+    staleTime: 15_000,
+  });
+
+export const useNotifications = () =>
+  useQuery({
+    queryKey: keys.notifications,
+    queryFn: () => get<Notification[]>("/me/notifications?limit=30"),
+  });
+
+export function useMarkNotificationRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api(`/me/notifications/${id}/read`, { method: "POST" }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.notifications });
+      void qc.invalidateQueries({ queryKey: keys.unreadCount });
+    },
+  });
+}
+
+export function useMarkAllRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => post("/me/notifications/read-all"),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.notifications });
+      void qc.invalidateQueries({ queryKey: keys.unreadCount });
+    },
   });
 }
