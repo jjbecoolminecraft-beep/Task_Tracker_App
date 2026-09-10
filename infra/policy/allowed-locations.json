@@ -1,0 +1,44 @@
+{
+  "properties": {
+    "displayName": "Allowed locations — EU Data Boundary only",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Denies creation of resources outside the approved EU region list (spec §6.4). Assign at the subscription or management-group scope that hosts the Task Tracker environments.",
+    "metadata": {
+      "category": "General",
+      "version": "1.0.0"
+    },
+    "parameters": {
+      "listOfAllowedLocations": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed locations",
+          "description": "The list of locations that resources may be created in.",
+          "strongType": "location"
+        },
+        "defaultValue": ["westeurope", "northeurope"]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "location",
+            "notIn": "[parameters('listOfAllowedLocations')]"
+          },
+          {
+            "field": "location",
+            "notEquals": "global"
+          },
+          {
+            "value": "[resourceGroup().location]",
+            "notIn": "[parameters('listOfAllowedLocations')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  }
+}

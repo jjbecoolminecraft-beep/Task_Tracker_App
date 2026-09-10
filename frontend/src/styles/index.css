@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-surface-sunken text-ink font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-navy-900;
+  }
+
+  /* WCAG 2.1 AA: a visible focus ring on every interactive control (spec §5.3). */
+  :focus-visible {
+    outline: 2px solid theme("colors.primary.DEFAULT");
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .kb-label {
+    @apply text-[11px] font-semibold uppercase tracking-label text-ink-subtle;
+  }
+
+  .kb-card {
+    @apply rounded-md border border-line bg-surface shadow-card;
+  }
+
+  .kb-input {
+    @apply w-full rounded border border-line bg-surface px-3 py-2 text-sm text-ink
+           placeholder:text-ink-subtle focus:border-primary focus:outline-none
+           focus-visible:outline-none;
+  }
+
+  .kb-hairline {
+    @apply border-b border-line;
+  }
+}

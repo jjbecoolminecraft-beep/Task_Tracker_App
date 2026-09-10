@@ -1,0 +1,120 @@
+{
+  "app": {
+    "name": "Projekt- & Aufgaben-Tracker",
+    "tagline": "Eine verbindliche Quelle für den Aufgabenstatus"
+  },
+  "nav": {
+    "projects": "Projekte",
+    "myTasks": "Meine Aufgaben",
+    "search": "Suche",
+    "signOut": "Abmelden"
+  },
+  "auth": {
+    "title": "Anmelden",
+    "devSubtitle": "Lokale Entwicklung – eine Testidentität wählen",
+    "devNotice": "Dies ist ein Entwicklungs-Login-Stub. Produktiv erfolgt die Anmeldung über das Unternehmens-SSO (Microsoft Entra ID).",
+    "continueAs": "Weiter als {{name}}",
+    "roles": "Rollen",
+    "noRoles": "Keine expliziten Rollen",
+    "signedInAs": "Angemeldet als"
+  },
+  "projects": {
+    "title": "Projekte",
+    "subtitle": "Projekte, auf die Sie über Mitgliedschaft oder interne Sichtbarkeit zugreifen können",
+    "new": "Neues Projekt",
+    "empty": "Noch keine Projekte",
+    "emptyHint": "Sie haben auf kein Projekt Zugriff. Bitten Sie einen Projekt-Admin, Sie hinzuzufügen.",
+    "openTasks": "{{count}} offen",
+    "openTasks_one": "{{count}} offen",
+    "role": "Ihre Rolle",
+    "visibilityPrivate": "Privat",
+    "visibilityInternal": "Intern",
+    "archived": "Archiviert",
+    "create": {
+      "title": "Projekt anlegen",
+      "key": "Kürzel",
+      "keyHint": "2–10 Großbuchstaben oder Ziffern, z. B. MKTG",
+      "name": "Name",
+      "description": "Beschreibung",
+      "portfolio": "Portfolio",
+      "visibility": "Sichtbarkeit",
+      "submit": "Projekt anlegen",
+      "cancel": "Abbrechen"
+    }
+  },
+  "board": { "title": "Board", "addCard": "Aufgabe hinzufügen", "moveLeft": "In vorherigen Status", "moveRight": "In nächsten Status" },
+  "list": {
+    "title": "Liste",
+    "columns": {
+      "ref": "Ref",
+      "title": "Titel",
+      "state": "Status",
+      "priority": "Priorität",
+      "assignee": "Zuständig",
+      "due": "Fällig"
+    },
+    "loadMore": "Mehr laden",
+    "empty": "Keine Aufgaben entsprechen diesen Filtern",
+    "filters": {
+      "all": "Alle",
+      "state": "Status",
+      "assignee": "Zuständig",
+      "anyAssignee": "Alle",
+      "unassigned": "Nicht zugewiesen",
+      "priority": "Priorität",
+      "search": "In diesem Projekt suchen",
+      "clear": "Filter zurücksetzen"
+    }
+  },
+  "task": {
+    "new": "Neue Aufgabe",
+    "create": "Aufgabe anlegen",
+    "titlePlaceholder": "Was ist zu tun?",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Mehr Details hinzufügen …",
+    "state": "Status",
+    "priority": "Priorität",
+    "assignee": "Zuständig",
+    "reporter": "Erfasst von",
+    "due": "Fälligkeitsdatum",
+    "estimate": "Schätzung (h)",
+    "subtasks": "Teilaufgaben",
+    "addSubtask": "Teilaufgabe hinzufügen",
+    "comments": "Kommentare",
+    "commentPlaceholder": "Kommentar schreiben … mit @ erwähnen",
+    "addComment": "Kommentieren",
+    "complete": "Als erledigt markieren",
+    "completed": "Erledigt",
+    "delete": "Aufgabe löschen",
+    "deleteConfirm": "Diese Aufgabe löschen? Wiederherstellung innerhalb von 30 Tagen möglich.",
+    "saved": "Gespeichert",
+    "conflict": "Jemand hat diese Aufgabe geändert. Die aktuelle Version wird neu geladen.",
+    "unassigned": "Nicht zugewiesen",
+    "noComments": "Noch keine Kommentare",
+    "createdBy": "hat diese Aufgabe erstellt"
+  },
+  "myTasks": {
+    "title": "Meine Aufgaben",
+    "subtitle": "Alles, was Ihnen zugewiesen ist – über alle zugänglichen Projekte hinweg",
+    "empty": "Ihnen ist derzeit nichts zugewiesen"
+  },
+  "search": {
+    "title": "Suche",
+    "placeholder": "Aufgaben in Ihren Projekten suchen",
+    "hint": "Volltextsuche, beschränkt auf zugängliche Projekte",
+    "empty": "Keine Ergebnisse",
+    "prompt": "Zum Suchen tippen"
+  },
+  "priority": { "1": "Höchste", "2": "Hoch", "3": "Normal", "4": "Niedrig", "5": "Niedrigste" },
+  "common": {
+    "loading": "Laden …",
+    "retry": "Erneut versuchen",
+    "error": "Etwas ist schiefgelaufen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "close": "Schließen",
+    "overdue": "Überfällig",
+    "today": "Heute",
+    "none": "Keine"
+  }
+}
