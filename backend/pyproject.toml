@@ -1,0 +1,99 @@
+[project]
+name = "task-tracker-api"
+version = "0.1.0"
+description = "Enterprise Project & Task Tracker — API (FastAPI)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115,<0.116",
+    "uvicorn[standard]>=0.32,<0.35",
+    "sqlalchemy[asyncio]>=2.0.36,<2.1",
+    "asyncpg>=0.30,<0.31",
+    "alembic>=1.14,<1.15",
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.6,<3",
+    "pyjwt>=2.9,<3",
+    "structlog>=24.4,<26",
+    "python-multipart>=0.0.12",
+    "redis>=5.2,<6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9",
+    "pytest-asyncio>=0.24,<0.25",
+    "httpx>=0.27,<0.29",
+    "coverage[toml]>=7.6,<8",
+    "ruff>=0.8,<0.9",
+    "black>=24.10,<25",
+    "mypy>=1.13,<2",
+    "bandit>=1.8,<2",
+    "pip-audit>=2.7,<3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 110
+src = ["app", "tests"]
+
+[tool.ruff.lint]
+# Security lints (bandit / `S`) run as a dedicated CI step, not here.
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "ASYNC"]
+per-file-ignores = { "migrations/**" = ["E501"], "tests/**" = ["E501"], "app/seed.py" = ["E501"], "scripts/**" = ["E501"] }
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection markers are meant to be called in defaults.
+extend-immutable-calls = [
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.Path",
+    "fastapi.Depends",
+    "fastapi.Cookie",
+]
+
+[tool.black]
+line-length = 110
+target-version = ["py312"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+# SQLAlchemy 2 declarative + string relationship annotations don't play well with
+# --strict; we run a pragmatic baseline and let the test suite (>=80% on service
+# and authz layers, spec §9) carry correctness there.
+warn_unused_ignores = true
+warn_redundant_casts = true
+check_untyped_defs = true
+no_implicit_optional = true
+exclude = ["migrations/", "tests/"]
+
+[[tool.mypy.overrides]]
+module = ["app.models.*"]
+# Relationship() string forward-refs read as undefined names to mypy.
+disable_error_code = ["name-defined"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["error::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/seed.py", "app/main.py"]
+
+[tool.coverage.report]
+# Spec §9: >= 80% on the service and authorization layers.
+fail_under = 80
+show_missing = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "migrations", "scripts"]
+# B101: type-narrowing `assert x is not None` after a DB .get() — acceptable;
+# it never guards a security decision (those raise AppError explicitly).
+skips = ["B101"]

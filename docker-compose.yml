@@ -1,0 +1,64 @@
+# Local development stack.
+#
+# In production none of this runs as containers we manage: PostgreSQL and Redis are
+# Azure PaaS behind private endpoints, the API/worker/scheduler run on Azure Container
+# Apps, and the SPA is served by Azure Static Web Apps. See infra/ for the Bicep.
+#
+# Usage:
+#   docker compose up -d db redis        # data services only, run API on the host
+#   docker compose up --build            # full stack (API in a container too)
+#   docker compose run --rm api pytest   # test suite against a throwaway DB
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: tracker
+      POSTGRES_PASSWORD: tracker
+      POSTGRES_DB: tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracker -d tracker"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    environment:
+      APP_ENV: local
+      DATABASE_URL: postgresql+asyncpg://tracker:tracker@db:5432/tracker
+      REDIS_URL: redis://redis:6379/0
+      DEV_AUTH_ENABLED: "true"
+      DEV_AUTH_SECRET: local-dev-only-not-a-real-secret-change-me
+      CORS_ORIGINS: http://localhost:5173
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head &&
+             python -m app.seed &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+volumes:
+  pgdata:

@@ -1,0 +1,181 @@
+{
+  "app": {
+    "name": "Project & Task Tracker",
+    "tagline": "One authoritative source of task state"
+  },
+  "nav": {
+    "projects": "Projects",
+    "myTasks": "My tasks",
+    "search": "Search",
+    "audit": "Audit log",
+    "signOut": "Sign out"
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Every state change, append-only. Visible to the Auditor role only, for security investigation and compliance (spec §8.4.4).",
+    "allProjects": "All projects",
+    "empty": "No audit events",
+    "col": {
+      "when": "When",
+      "actor": "Actor",
+      "action": "Action",
+      "resource": "Resource",
+      "changes": "Changes"
+    }
+  },
+  "auth": {
+    "title": "Sign in",
+    "devSubtitle": "Local development — pick a seeded identity",
+    "devNotice": "This is a development sign-in stub. Production uses corporate single sign-on (Microsoft Entra ID).",
+    "continueAs": "Continue as {{name}}",
+    "roles": "Roles",
+    "noRoles": "No explicit roles",
+    "signedInAs": "Signed in as"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Projects you can access through membership or an internal-visibility flag",
+    "new": "New project",
+    "empty": "No projects yet",
+    "emptyHint": "You don't have access to any project. Ask a project admin to add you.",
+    "openTasks": "{{count}} open",
+    "openTasks_one": "{{count}} open",
+    "role": "Your role",
+    "visibilityPrivate": "Private",
+    "visibilityInternal": "Internal",
+    "archived": "Archived",
+    "create": {
+      "title": "Create project",
+      "key": "Key",
+      "keyHint": "2–10 uppercase letters or digits, e.g. MKTG",
+      "name": "Name",
+      "description": "Description",
+      "portfolio": "Portfolio",
+      "visibility": "Visibility",
+      "submit": "Create project",
+      "cancel": "Cancel"
+    }
+  },
+  "board": { "title": "Board", "addCard": "Add task", "moveLeft": "Move to previous state", "moveRight": "Move to next state" },
+  "dashboard": {
+    "title": "Dashboard",
+    "kpi": {
+      "total": "Total",
+      "open": "Open",
+      "done": "Done",
+      "overdue": "Overdue",
+      "unassigned": "Unassigned"
+    },
+    "doneCount": "{{count}} done",
+    "openCount": "{{count}} open",
+    "avgAge": "Avg. open task age {{days}} d",
+    "contributors": "{{count}} contributor",
+    "contributors_other": "{{count}} contributors",
+    "byState": "Tasks by workflow state",
+    "byPriority": "Tasks by priority",
+    "throughput": "Completed per week",
+    "throughputHint": "Tasks moved to a done state, last 8 weeks",
+    "category": { "backlog": "Backlog", "in_progress": "In progress", "done": "Done" },
+    "privacyNote": "Reporting is aggregated to project level only — no per-person figures (works agreement / GDPR §8.4)."
+  },
+  "list": {
+    "title": "List",
+    "columns": {
+      "ref": "Ref",
+      "title": "Title",
+      "state": "State",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "due": "Due"
+    },
+    "loadMore": "Load more",
+    "empty": "No tasks match these filters",
+    "filters": {
+      "all": "All",
+      "state": "State",
+      "assignee": "Assignee",
+      "anyAssignee": "Anyone",
+      "unassigned": "Unassigned",
+      "priority": "Priority",
+      "search": "Search this project",
+      "clear": "Clear filters"
+    }
+  },
+  "task": {
+    "new": "New task",
+    "create": "Create task",
+    "titlePlaceholder": "What needs to be done?",
+    "description": "Description",
+    "descriptionPlaceholder": "Add more detail…",
+    "state": "State",
+    "priority": "Priority",
+    "assignee": "Assignee",
+    "reporter": "Reporter",
+    "due": "Due date",
+    "estimate": "Estimate (h)",
+    "subtasks": "Subtasks",
+    "addSubtask": "Add subtask",
+    "comments": "Comments",
+    "commentPlaceholder": "Write a comment… use @ to mention",
+    "addComment": "Comment",
+    "complete": "Mark complete",
+    "completed": "Completed",
+    "delete": "Delete task",
+    "deleteConfirm": "Delete this task? It can be restored within 30 days.",
+    "saved": "Saved",
+    "conflict": "Someone else changed this task. Reloading the latest version.",
+    "unassigned": "Unassigned",
+    "noComments": "No comments yet",
+    "createdBy": "opened this task"
+  },
+  "myTasks": {
+    "title": "My tasks",
+    "subtitle": "Everything assigned to you, across every project you can access",
+    "empty": "Nothing assigned to you right now"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "You're all caught up",
+    "someone": "Someone",
+    "kind": {
+      "task.assigned": "{{who}} assigned {{ref}} to you",
+      "comment.mention": "{{who}} mentioned you on {{ref}}",
+      "comment.added": "{{who}} commented on {{ref}}",
+      "task.due_soon": "{{ref}} is due soon"
+    }
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search tasks across your projects",
+    "hint": "Full-text search, scoped to projects you can access",
+    "empty": "No results",
+    "prompt": "Type to search"
+  },
+  "io": {
+    "export": "Export",
+    "exportAs": "Export as {{format}}",
+    "import": "Import",
+    "importTitle": "Import tasks from CSV",
+    "importHint": "One task per row. Only 'title' is required; unknown values are reported, not guessed. Large files should use the API.",
+    "dropOrPick": "Drop a .csv here, or",
+    "chooseFile": "Choose file",
+    "created": "{{count}} task created",
+    "created_other": "{{count}} tasks created",
+    "skipped": "{{count}} row skipped",
+    "skipped_other": "{{count}} rows skipped",
+    "row": "Row {{n}}"
+  },
+  "priority": { "1": "Highest", "2": "High", "3": "Normal", "4": "Low", "5": "Lowest" },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "error": "Something went wrong",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "overdue": "Overdue",
+    "today": "Today",
+    "none": "None"
+  }
+}
