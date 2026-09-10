@@ -1,8 +1,8 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { clsx } from "clsx";
-import { FolderKanban, ListChecks, LogOut, Search } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { FolderKanban, ListChecks, LogOut, ScrollText, Search } from "lucide-react";
+import { hasRole, useAuth } from "@/lib/auth";
 import { setLanguage } from "@/i18n";
 import { Avatar } from "@/components/ui/Avatar";
 import { NotificationBell } from "./NotificationBell";
@@ -16,6 +16,7 @@ const NAV = [
 function contextLabel(pathname: string, t: (k: string) => string): string {
   if (pathname.startsWith("/my-tasks")) return t("nav.myTasks");
   if (pathname.startsWith("/search")) return t("nav.search");
+  if (pathname.startsWith("/audit")) return t("nav.audit");
   if (pathname.startsWith("/projects")) return t("nav.projects");
   return t("app.name");
 }
@@ -83,7 +84,12 @@ export function AppShell() {
       <div className="mx-auto flex max-w-shell gap-6 px-4 py-7 sm:px-6">
         <nav className="hidden w-48 shrink-0 md:block">
           <ul className="space-y-1">
-            {NAV.map(({ to, key, icon: Icon }) => (
+            {[
+              ...NAV,
+              ...(hasRole(session, "auditor")
+                ? [{ to: "/audit", key: "nav.audit", icon: ScrollText }]
+                : []),
+            ].map(({ to, key, icon: Icon }) => (
               <li key={to}>
                 <NavLink
                   to={to}

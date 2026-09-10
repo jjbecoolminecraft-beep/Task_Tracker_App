@@ -24,9 +24,10 @@ A runnable MVP vertical slice:
 | Authorization | Central `authorize()` layer, deny‑by‑default, scoped roles, row‑level query filtering, `tests/authz/` endpoint × role matrix ([ADR 0005](docs/adr/0005-authorization-layer-design.md)) |
 | Domain | Portfolio → Project → Task → Subtask, per‑project workflow states, comments + `@mention`, labels, guest task shares, audit trail |
 | API | Project & task CRUD, board/list, `My tasks`, full‑text search (Postgres `tsvector`), cursor pagination, optimistic concurrency (`If-Match`/`ETag`), error envelope + `X-Request-Id`, OpenAPI at `/api/v1/docs` |
-| Audit | Every mutation writes an `audit_events` row in the same transaction; table is append‑only (DB trigger); read access is Auditor‑only |
+| Audit (F‑11) | Every mutation writes an `audit_events` row in the same transaction; table is append‑only (DB trigger); `GET /api/v1/audit` + an **Audit log** page are Auditor‑only (spec §8.4.4) with a before→after diff view |
 | Notifications (F‑10) | In‑app feed for task assignment and comment `@mention` / activity; created in the same transaction, scoped strictly to the recipient, never for the actor's own action. Email digest is a worker job (stubbed) |
-| Web | Login (identity picker), Projects, Project **List** + **Board** (drag + keyboard), Task detail drawer (inline edit, comments, subtasks), My tasks, Search, notification bell — English/German i18n |
+| Import / export (F‑12) | CSV + JSON export of a project's tasks (audited, §8.4.6); CSV import via the normal task‑create path (per‑row validation report, parent‑ref → subtask). Large async imports are a worker job (not built) |
+| Web | Login (identity picker), Projects, Project **List** + **Board** (drag + keyboard), Task detail drawer (inline edit, comments, subtasks), My tasks, Search, notification bell, CSV/JSON export + import dialog, Auditor‑only Audit log — English/German i18n (key parity checked in CI) |
 | Infra | `infra/` Bicep: VNet + private endpoints, PostgreSQL Flexible Server (Entra auth, zone‑redundant HA), Redis, Blob, Key Vault, Container Apps, Static Web App, Front Door + WAF, EU‑only Azure Policy |
 | Compliance | DPIA outline, RoPA entry, retention concept, works‑agreement outline in `docs/compliance/` |
 

@@ -20,6 +20,7 @@ from typing import Annotated, Any
 import jwt
 from fastapi import Depends, Request
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -84,18 +85,26 @@ def _bearer_token(request: Request) -> str:
 
 
 async def _provision_user(session: AsyncSession, claims: dict[str, Any]) -> User:
-    """Just-in-time provisioning on first sign-in (spec §2.1)."""
+    """Just-in-time provisioning on first sign-in (spec §2.1).
+
+    Race-safe: two concurrent first requests for the same identity (two tabs, or
+    the SPA firing parallel calls on load) must not both INSERT. We upsert on the
+    ``entra_object_id`` unique key and then read the row back.
+    """
     oid = uuid.UUID(str(claims["oid"]))
     user = (await session.execute(select(User).where(User.entra_object_id == oid))).scalar_one_or_none()
 
     if user is None:
-        user = User(
-            entra_object_id=oid,
-            upn=str(claims.get("preferred_username") or f"{oid}@example.invalid"),
-            display_name=str(claims.get("name") or "Unknown user"),
+        await session.execute(
+            pg_insert(User)
+            .values(
+                entra_object_id=oid,
+                upn=str(claims.get("preferred_username") or f"{oid}@example.invalid"),
+                display_name=str(claims.get("name") or "Unknown user"),
+            )
+            .on_conflict_do_nothing(index_elements=[User.entra_object_id])
         )
-        session.add(user)
-        await session.flush()
+        user = (await session.execute(select(User).where(User.entra_object_id == oid))).scalar_one()
         log.info("user_provisioned", user_id=str(user.id))
 
     if not user.is_active:

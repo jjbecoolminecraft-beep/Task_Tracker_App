@@ -10,6 +10,7 @@ import { TaskListView } from "@/features/tasks/TaskListView";
 import { TaskBoardView } from "@/features/tasks/TaskBoardView";
 import { TaskDetailDrawer } from "@/features/tasks/TaskDetailDrawer";
 import { CreateTaskDialog } from "@/features/tasks/CreateTaskDialog";
+import { ImportExportMenu } from "@/features/tasks/ImportExportMenu";
 
 type Tab = "list" | "board";
 
@@ -81,12 +82,15 @@ export function ProjectPage() {
           </div>
         </div>
 
-        {canWrite && (
-          <Button onClick={() => setCreating(true)}>
-            <Plus className="h-4 w-4" />
-            {t("task.new")}
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportExportMenu projectId={projectId} canWrite={!!canWrite} />
+          {canWrite && (
+            <Button onClick={() => setCreating(true)}>
+              <Plus className="h-4 w-4" />
+              {t("task.new")}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* tab switch + filters */}

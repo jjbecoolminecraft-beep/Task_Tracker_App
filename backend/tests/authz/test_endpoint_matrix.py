@@ -52,6 +52,7 @@ REQUESTS: dict[str, tuple[str, str, object]] = {
         {"title": "y"},
     ),
     "comment_task": ("POST", "/api/v1/tasks/{mktg_task_id}/comments", {"body": "hi"}),
+    "export_tasks": ("GET", "/api/v1/projects/{mktg_id}/tasks/export?format=csv", None),
     "read_audit": ("GET", "/api/v1/audit", None),
 }
 
@@ -134,6 +135,16 @@ EXPECTATIONS: dict[str, dict[str, str]] = {
         "Elena Popova": ALLOW,
         "Frank Müller": DENY,
         "Greta Lang": DENY,
+        "Hugo Bauer": DENY,
+    },
+    "export_tasks": {
+        # Export == PROJECT_READ. Audited (§8.4.6) but not a write.
+        "Anna Weber": DENY,
+        "Björn Neumann": DENY,
+        "Clara Schmidt": ALLOW,
+        "David Fischer": ALLOW,
+        "Elena Popova": ALLOW,
+        "Frank Müller": ALLOW,  # Viewer may export
         "Hugo Bauer": DENY,
     },
     "read_audit": {

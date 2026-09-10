@@ -138,6 +138,20 @@ export interface Notification {
   created_at: string;
 }
 
+export interface AuditEvent {
+  id: number;
+  occurred_at: string;
+  actor_id: string | null;
+  actor_upn: string | null;
+  action: string;
+  resource_type: string;
+  resource_id: string | null;
+  project_id: string | null;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  request_id: string | null;
+}
+
 export interface ApiError {
   code: string;
   message: string;

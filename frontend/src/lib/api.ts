@@ -71,6 +71,43 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<A
 
 export const get = <T>(path: string, signal?: AbortSignal) => api<T>(path, { signal }).then((r) => r.data);
 export const getWithEtag = <T>(path: string) => api<T>(path);
+
+/** Fetch a file with auth and hand it to the browser's download flow. */
+export async function downloadFile(path: string): Promise<void> {
+  const headers: Record<string, string> = {};
+  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  const res = await fetch(`${BASE}${path}`, { headers });
+  if (!res.ok) {
+    const body = await res.text();
+    const err = body ? JSON.parse(body).error : { code: "unknown", message: "Download failed" };
+    throw new ApiRequestError(res.status, err);
+  }
+  const disposition = res.headers.get("Content-Disposition") ?? "";
+  const match = /filename="?([^"]+)"?/.exec(disposition);
+  const filename = match?.[1] ?? "export";
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/** Multipart upload with auth. */
+export async function uploadFile<T>(path: string, form: FormData): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  const res = await fetch(`${BASE}${path}`, { method: "POST", headers, body: form });
+  const text = await res.text();
+  const payload = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    throw new ApiRequestError(res.status, payload?.error ?? { code: "unknown", message: "Upload failed" });
+  }
+  return payload as T;
+}
 export const post = <T>(path: string, body?: unknown, ifMatch?: string | null) =>
   api<T>(path, { method: "POST", body, ifMatch });
 export const patch = <T>(path: string, body: unknown, ifMatch?: string | null) =>

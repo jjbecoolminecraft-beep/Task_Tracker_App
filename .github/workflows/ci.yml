@@ -66,6 +66,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run check:i18n
       - run: npm run build
       - name: Dependency audit
         run: npm audit --audit-level=high || true

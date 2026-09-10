@@ -4,11 +4,20 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.v1 import audit, auth, notifications, projects, tasks, users
+from app.api.v1 import (
+    audit,
+    auth,
+    import_export,
+    notifications,
+    projects,
+    tasks,
+    users,
+)
 from app.core.config import settings
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(projects.router)
+api_router.include_router(import_export.router)
 api_router.include_router(tasks.router)
 api_router.include_router(users.router)
 api_router.include_router(audit.router)

@@ -7,7 +7,21 @@
     "projects": "Projekte",
     "myTasks": "Meine Aufgaben",
     "search": "Suche",
+    "audit": "Audit-Log",
     "signOut": "Abmelden"
+  },
+  "audit": {
+    "title": "Audit-Log",
+    "subtitle": "Jede Statusänderung, nur anfügend. Nur für die Auditor-Rolle sichtbar, für Sicherheitsuntersuchung und Compliance (Spec §8.4.4).",
+    "allProjects": "Alle Projekte",
+    "empty": "Keine Audit-Ereignisse",
+    "col": {
+      "when": "Zeitpunkt",
+      "actor": "Akteur",
+      "action": "Aktion",
+      "resource": "Ressource",
+      "changes": "Änderungen"
+    }
   },
   "auth": {
     "title": "Anmelden",
@@ -116,6 +130,20 @@
     "hint": "Volltextsuche, beschränkt auf zugängliche Projekte",
     "empty": "Keine Ergebnisse",
     "prompt": "Zum Suchen tippen"
+  },
+  "io": {
+    "export": "Export",
+    "exportAs": "Als {{format}} exportieren",
+    "import": "Import",
+    "importTitle": "Aufgaben aus CSV importieren",
+    "importHint": "Eine Aufgabe pro Zeile. Nur 'title' ist Pflicht; unbekannte Werte werden gemeldet, nicht geraten. Große Dateien über die API.",
+    "dropOrPick": "CSV hierher ziehen oder",
+    "chooseFile": "Datei wählen",
+    "created": "{{count}} Aufgabe erstellt",
+    "created_other": "{{count}} Aufgaben erstellt",
+    "skipped": "{{count}} Zeile übersprungen",
+    "skipped_other": "{{count}} Zeilen übersprungen",
+    "row": "Zeile {{n}}"
   },
   "priority": { "1": "Höchste", "2": "Hoch", "3": "Normal", "4": "Niedrig", "5": "Niedrigste" },
   "common": {

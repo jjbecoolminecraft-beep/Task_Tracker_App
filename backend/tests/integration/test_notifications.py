@@ -1,5 +1,8 @@
 """In-app notifications (spec F-10): created in the same transaction as the
 change, scoped strictly to the recipient, never for the actor's own action.
+
+The seed ships a few notifications so the UI bell isn't empty, so these tests
+assert *deltas* against a per-test baseline rather than absolute counts.
 """
 
 from __future__ import annotations
@@ -21,8 +24,15 @@ async def _unread(client) -> int:
     return (await client.get("/api/v1/me/notifications/unread-count")).json()["unread"]
 
 
+async def _clear(client) -> None:
+    await client.post("/api/v1/me/notifications/read-all")
+
+
 async def test_assigning_a_task_notifies_the_assignee_not_the_actor(actors, world):
     david, elena = actors["david"], actors["elena"]
+    await _clear(elena)
+    david_base = await _unread(david)
+
     resp = await david.post(
         f"/api/v1/projects/{world['mktg_id']}/tasks",
         json={"title": "Notify me", "assignee_id": actors["ids"]["Elena Popova"]},
@@ -31,7 +41,7 @@ async def test_assigning_a_task_notifies_the_assignee_not_the_actor(actors, worl
     ref = resp.json()["ref"]
 
     assert await _unread(elena) == 1
-    assert await _unread(david) == 0  # actor never notified of own action
+    assert await _unread(david) == david_base  # actor never notified of own action
 
     feed = (await elena.get("/api/v1/me/notifications")).json()
     assert feed[0]["kind"] == "task.assigned"
@@ -42,17 +52,20 @@ async def test_assigning_a_task_notifies_the_assignee_not_the_actor(actors, worl
 
 async def test_reassignment_notifies_only_the_new_assignee(actors, world):
     david = actors["david"]
+    await _clear(actors["elena"])
+    await _clear(actors["clara"])
+
     tid = (await david.post(f"/api/v1/projects/{world['mktg_id']}/tasks", json={"title": "reassign"})).json()[
         "id"
     ]
-    # assign to Elena
+
     await david.patch(
         f"/api/v1/tasks/{tid}",
         headers={"If-Match": '"1"'},
         json={"assignee_id": actors["ids"]["Elena Popova"]},
     )
     assert await _unread(actors["elena"]) == 1
-    # reassign to Clara
+
     await david.patch(
         f"/api/v1/tasks/{tid}",
         headers={"If-Match": '"2"'},
@@ -64,6 +77,9 @@ async def test_reassignment_notifies_only_the_new_assignee(actors, world):
 
 async def test_comment_mention_and_assignee_fanout(actors, world):
     david, elena, clara = actors["david"], actors["elena"], actors["clara"]
+    await _clear(elena)
+    await _clear(clara)
+
     tid = (
         await david.post(
             f"/api/v1/projects/{world['mktg_id']}/tasks",
@@ -81,14 +97,16 @@ async def test_comment_mention_and_assignee_fanout(actors, world):
     assert "@Clara Schmidt" in clara_feed[0]["snippet"]  # markup stripped
     assert "](" not in clara_feed[0]["snippet"]
 
-    elena_feed = (await elena.get("/api/v1/me/notifications?unread=true")).json()
-    kinds = {n["kind"] for n in elena_feed}
-    assert "comment.added" in kinds  # assignee heard about the comment
-    assert "task.assigned" in kinds
+    elena_kinds = {n["kind"] for n in (await elena.get("/api/v1/me/notifications?unread=true")).json()}
+    assert "comment.added" in elena_kinds  # assignee heard about the comment
+    assert "task.assigned" in elena_kinds
 
 
 async def test_mark_read_and_read_all(actors, world):
     david, elena = actors["david"], actors["elena"]
+    await _clear(elena)
+    assert await _unread(elena) == 0
+
     for i in range(3):
         await david.post(
             f"/api/v1/projects/{world['mktg_id']}/tasks",
@@ -106,6 +124,8 @@ async def test_mark_read_and_read_all(actors, world):
 
 async def test_a_user_cannot_touch_another_users_notifications(actors, world):
     david, elena = actors["david"], actors["elena"]
+    await _clear(elena)
+
     await david.post(
         f"/api/v1/projects/{world['mktg_id']}/tasks",
         json={"title": "mine", "assignee_id": actors["ids"]["Elena Popova"]},
@@ -114,3 +134,9 @@ async def test_a_user_cannot_touch_another_users_notifications(actors, world):
 
     assert (await david.post(f"/api/v1/me/notifications/{nid}/read")).status_code == 404
     assert await _unread(elena) == 1  # still unread
+
+
+async def test_seed_ships_a_starter_feed(actors):
+    """The bell is not empty on a fresh seed."""
+    feed = (await actors["david"].get("/api/v1/me/notifications")).json()
+    assert any(n["kind"] == "comment.mention" for n in feed)

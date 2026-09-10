@@ -31,8 +31,9 @@ enforced in the data model and API, and covered by tests.
 5. **Restricted audit access.** Audit logs are visible only to the Auditor role,
    only for security investigation and compliance. Line managers have no audit
    access to their reports' activity.
-   *Evidence:* `GET /api/v1/audit` gated on the global Auditor grant; authz
-   matrix asserts every other role is denied.
+   *Evidence:* `GET /api/v1/audit` and the **Audit log** UI page are gated on the
+   global Auditor grant; the `tests/authz/` matrix asserts every other role
+   (including System Admin) is denied.
 
 6. **Transparency.** Employees can see what data the system holds about them and
    who has accessed it (in-app view; self-service export).

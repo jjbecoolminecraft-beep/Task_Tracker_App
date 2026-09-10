@@ -6,6 +6,7 @@ import { ProjectsPage } from "@/features/projects/ProjectsPage";
 import { ProjectPage } from "@/features/projects/ProjectPage";
 import { MyTasksPage } from "@/features/my-tasks/MyTasksPage";
 import { SearchPage } from "@/features/search/SearchPage";
+import { AuditLogPage } from "@/features/audit/AuditLogPage";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: "projects/:projectId", element: <ProjectPage /> },
       { path: "my-tasks", element: <MyTasksPage /> },
       { path: "search", element: <SearchPage /> },
+      { path: "audit", element: <AuditLogPage /> },
     ],
   },
   { path: "*", element: <Navigate to="/projects" replace /> },

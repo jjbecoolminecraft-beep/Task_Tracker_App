@@ -7,7 +7,21 @@
     "projects": "Projects",
     "myTasks": "My tasks",
     "search": "Search",
+    "audit": "Audit log",
     "signOut": "Sign out"
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Every state change, append-only. Visible to the Auditor role only, for security investigation and compliance (spec §8.4.4).",
+    "allProjects": "All projects",
+    "empty": "No audit events",
+    "col": {
+      "when": "When",
+      "actor": "Actor",
+      "action": "Action",
+      "resource": "Resource",
+      "changes": "Changes"
+    }
   },
   "auth": {
     "title": "Sign in",
@@ -116,6 +130,20 @@
     "hint": "Full-text search, scoped to projects you can access",
     "empty": "No results",
     "prompt": "Type to search"
+  },
+  "io": {
+    "export": "Export",
+    "exportAs": "Export as {{format}}",
+    "import": "Import",
+    "importTitle": "Import tasks from CSV",
+    "importHint": "One task per row. Only 'title' is required; unknown values are reported, not guessed. Large files should use the API.",
+    "dropOrPick": "Drop a .csv here, or",
+    "chooseFile": "Choose file",
+    "created": "{{count}} task created",
+    "created_other": "{{count}} tasks created",
+    "skipped": "{{count}} row skipped",
+    "skipped_other": "{{count}} rows skipped",
+    "row": "Row {{n}}"
   },
   "priority": { "1": "Highest", "2": "High", "3": "Normal", "4": "Low", "5": "Lowest" },
   "common": {

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, del, get, patch, post } from "./api";
+import { api, del, downloadFile, get, patch, post, uploadFile } from "./api";
 import type {
+  AuditEvent,
   Comment,
   DevUser,
   Notification,
@@ -111,6 +112,17 @@ export const useSearch = (q: string) =>
     enabled: q.trim().length > 0,
   });
 
+export const useAuditEvents = (opts: { projectId?: string; beforeId?: number }) => {
+  const p = new URLSearchParams({ limit: "50" });
+  if (opts.projectId) p.set("project_id", opts.projectId);
+  if (opts.beforeId) p.set("before_id", String(opts.beforeId));
+  const qs = p.toString();
+  return useQuery({
+    queryKey: ["audit", qs],
+    queryFn: () => get<AuditEvent[]>(`/audit?${qs}`),
+  });
+};
+
 // ---- mutations ----
 
 export function useCreateTask(projectId: string) {
@@ -184,6 +196,33 @@ export function useCreateProject() {
     mutationFn: (body: Record<string, unknown>) =>
       post<Project>("/projects", body).then((r) => r.data),
     onSuccess: () => void qc.invalidateQueries({ queryKey: keys.projects }),
+  });
+}
+
+// ---- import / export (spec F-12) ----
+
+export interface ImportResult {
+  created: number;
+  refs: string[];
+  skipped: { row: number; reason: string }[];
+}
+
+export function exportProjectTasks(projectId: string, format: "csv" | "json") {
+  return downloadFile(`/projects/${projectId}/tasks/export?format=${format}`);
+}
+
+export function useImportTasks(projectId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return uploadFile<ImportResult>(`/projects/${projectId}/tasks/import`, form);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["projects", projectId, "tasks"] });
+      void qc.invalidateQueries({ queryKey: keys.project(projectId) });
+    },
   });
 }
 

@@ -59,7 +59,7 @@ def main() -> int:
     frank = login(by_name["Frank Müller"])
     greta = login(by_name["Greta Lang"])
     hugo = login(by_name["Hugo Bauer"])
-    login(by_name["Björn Neumann"])
+    bjoern = login(by_name["Björn Neumann"])
 
     print("\naccess scoping")
     _, projects, _ = call("GET", "/api/v1/projects", david)
@@ -135,6 +135,32 @@ def main() -> int:
     check("David search 'platform' -> no ENG leakage", st, 200)
     _, mine, _ = call("GET", "/api/v1/me/tasks", david)
     check("my tasks returns a page", "page" in mine, True)
+
+    print("\nnotifications + import/export + audit")
+    elena = login(by_name["Elena Popova"])
+    _, before_notif, _ = call("GET", "/api/v1/me/notifications/unread-count", elena)
+    st, made, _ = call(
+        "POST",
+        f"/api/v1/projects/{mktg}/tasks",
+        david,
+        {"title": "Smoke: notify", "assignee_id": by_name["Elena Popova"]},
+    )
+    _, after_notif, _ = call("GET", "/api/v1/me/notifications/unread-count", elena)
+    check(
+        "assigning a task notifies the assignee",
+        after_notif["unread"] - before_notif["unread"],
+        1,
+    )
+    _, exp, hdrs = call("GET", f"/api/v1/projects/{mktg}/tasks/export?format=csv", david)
+    check("CSV export is a download", hdrs.get("content-disposition", ""), lambda v: "filename=" in v)
+    st, _, _ = call("GET", "/api/v1/audit", david)
+    check("David cannot read the audit log -> 403", st, 403)
+    _, events, _ = call("GET", "/api/v1/audit", bjoern)
+    check(
+        "Auditor sees export + task events",
+        {e["action"] for e in events} >= {"project.exported", "task.created"},
+        True,
+    )
 
     print(f"\n{'ALL PASSED' if not _failures else str(_failures) + ' CHECK(S) FAILED'}")
     return 1 if _failures else 0
